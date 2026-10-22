@@ -70,18 +70,45 @@ function checkSlideBudgets(slides, maxAllowed = 18) {
   };
 }
 
+// --- Procedencia numérica ---------------------------------------------------
+// Solo se comparan cifras que son afirmaciones: se excluyen notas del orador
+// (comentarios HTML), bloques de código, código en línea, URLs y el frontmatter.
+// Coincidencia por valor numérico con límites de token, no por subcadena.
+const NUMBER_RE = /(?<![A-Za-z_\d.])(\d{1,3}(?:,\d{3})+|\d+)(\.\d+)?(%)?(?!\d)/g;
+
+function claimText(text) {
+  return text
+    .replace(/^\s*---\s*\n[\s\S]*?\n---[ \t]*(?:\n|$)/, ' ')
+    .replace(/<style>[\s\S]*?<\/style>/g, ' ')
+    .replace(/<!--[\s\S]*?-->/g, ' ')
+    .replace(/^\s*(`{3,}|~{3,})[\s\S]*?^\s*\1[ \t]*$/gm, ' ')
+    .replace(/`[^`\n]+`/g, ' ')
+    .replace(/https?:\/\/\S+/g, ' ');
+}
+
+function numbersIn(text) {
+  return [...claimText(text).matchAll(NUMBER_RE)].map(m => m[0]);
+}
+
+function canonical(token) {
+  const value = Number(token.replace(/%$/, '').replace(/,/g, ''));
+  return Number.isFinite(value) ? String(value) : null;
+}
+
+function isCheckable(token) {
+  if (token.endsWith('%') || token.includes('.') || token.includes(',')) return true;
+  const value = Number(token);
+  return value >= 10 && !(value >= 1900 && value <= 2099);
+}
+
 function checkNumericProvenance(deck, primaryText) {
   if (!primaryText) return [];
-
-  const rawMatches = deck.match(/\b(?:\d+(?:\.\d+)?%|\d+\.\d+\b|\d{2,}\b)/g) || [];
-  const uniqueTokens = [...new Set(rawMatches)];
-
-  const unverified = uniqueTokens.filter(token => {
-    if (token === '16' || token === '9') return false; // Ignorar formato 16:9
-    return !primaryText.includes(token);
-  });
-
-  return unverified.sort();
+  const sourceValues = new Set(numbersIn(primaryText).map(canonical).filter(v => v !== null));
+  const unverified = new Set();
+  for (const token of numbersIn(deck)) {
+    if (isCheckable(token) && !sourceValues.has(canonical(token))) unverified.add(token);
+  }
+  return [...unverified].sort();
 }
 
 function checkBibtexCitations(deck, bibtex) {

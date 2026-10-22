@@ -10,6 +10,7 @@ const assert = require('node:assert');
 const fs = require('node:fs');
 const path = require('node:path');
 const { runGateChecks } = require('../workflows/custom_nodes/gate_checks.cjs');
+const { spawnSync } = require('node:child_process');
 
 let passed = 0;
 let failed = 0;
@@ -117,6 +118,83 @@ test('8. workflows/custom_nodes/gate_checks.py existe y define la firma canónic
   assert.ok(content.includes('def main(slides_markdown: str'), 'def main() con slides_markdown debe existir');
   assert.ok(content.includes('check_numeric_provenance'), 'check_numeric_provenance debe existir');
   assert.ok(content.includes('check_bibtex_citations'), 'check_bibtex_citations debe existir');
+});
+
+
+// 9. Regresión: tiempos de notas del orador no son cifras sin procedencia
+const timingDeck = [
+  '---', 'marp: true', 'size: 16:9', 'theme: gaia', '---',
+  '# Resultados',
+  '- Latencia media: 12.4ms con muestra de 1,200 ejecuciones',
+  '<!-- Speaker Notes: [⏱️ 30 segundos] Explicar la latencia. -->',
+  '---',
+  '## Conclusión',
+  '- Disponibilidad observada: 99.8%',
+  '<!-- Speaker Notes: [⏱️ 60 segundos] Cerrar con la cota. -->',
+  '',
+].join('\n');
+const timingPrimary = 'Latencia media de 12.4ms en 1200 ejecuciones con disponibilidad de 99.8%.';
+
+test('9. Regresión: los tiempos "30 segundos" de las notas no se marcan como cifras', () => {
+  const result = runGateChecks(timingDeck, timingPrimary, validBibtex);
+  assert.deepStrictEqual(result.unverified_numbers, []);
+  assert.strictEqual(result.gate_passed, true);
+});
+
+// 10. Regresión: coincidencia por valor, no por subcadena
+test('10. Regresión: "100" no queda respaldado por "1000" en el texto primario', () => {
+  const deck = ['---', 'marp: true', 'size: 16:9', '---', '# Test', '- Latencia de 100 ms',
+    '<!-- Speaker Notes: [⏱️ 20 segundos] Nota. -->', ''].join('\n');
+  const result = runGateChecks(deck, 'El sistema midió 1000 ms.', validBibtex);
+  assert.ok(result.unverified_numbers.includes('100'), JSON.stringify(result.unverified_numbers));
+});
+
+// 11. Formatos equivalentes
+test('11. Formatos equivalentes se reconocen: 1,200 = 1200 y 12.40 = 12.4', () => {
+  const deck = ['---', 'marp: true', 'size: 16:9', '---', '# Test', '- Muestra: 1,200 y error 12.40',
+    '<!-- Speaker Notes: [⏱️ 20 segundos] Nota. -->', ''].join('\n');
+  const result = runGateChecks(deck, '1200 ejecuciones, error 12.4', validBibtex);
+  assert.deepStrictEqual(result.unverified_numbers, []);
+});
+
+// 12. Años, código y URLs no se verifican como cifras
+test('12. Años, código en bloque y URLs no se tratan como cifras sin fuente', () => {
+  const deck = [
+    '---', 'marp: true', 'size: 16:9', '---', '# Test',
+    '- Año 2026 de referencia',
+    '```python', 'x = 4096', '```',
+    'Fuente: https://arxiv.org/abs/2601.99999',
+    '<!-- Speaker Notes: [⏱️ 20 segundos] Nota. -->', '',
+  ].join('\n');
+  const result = runGateChecks(deck, 'texto sin cifras relevantes', validBibtex);
+  assert.deepStrictEqual(result.unverified_numbers, []);
+});
+
+// 13. Paridad Python / Node en procedencia numérica
+function pythonUnverified(deck, primary) {
+  const gateDir = path.join(__dirname, '../workflows/custom_nodes');
+  const code = [
+    'import json, sys',
+    'sys.path.insert(0, sys.argv[3])',
+    'import gate_checks as g',
+    'deck = open(sys.argv[1], encoding="utf-8").read()',
+    'print(json.dumps(g.main(deck, sys.argv[2])["unverified_numbers"]))',
+  ].join('\n');
+  const tmp = path.join(require('node:os').tmpdir(), `gate_parity_${process.pid}.md`);
+  fs.writeFileSync(tmp, deck, 'utf-8');
+  const r = spawnSync('python3', ['-c', code, tmp, primary, gateDir], { encoding: 'utf-8' });
+  fs.unlinkSync(tmp);
+  if (r.error || r.status !== 0) throw new Error(`python3 falló: ${r.stderr || r.error}`);
+  return JSON.parse(r.stdout);
+}
+
+test('13. Paridad Python/Node: ambas implementaciones devuelven las mismas cifras sin procedencia', () => {
+  const deckA = [timingDeck, '- Latencia de 100 ms', '<!-- Speaker Notes: [⏱️ 20 segundos] x -->'].join('\n');
+  const primaryA = timingPrimary + ' El sistema midió 1000 ms.';
+  const jsA = runGateChecks(deckA, primaryA, validBibtex).unverified_numbers;
+  const pyA = pythonUnverified(deckA, primaryA);
+  assert.deepStrictEqual(pyA, jsA);
+  assert.ok(jsA.includes('100'));
 });
 
 console.log('\n====================================================');

@@ -12,6 +12,7 @@ Comprueba físicamente:
 
 import re
 import json
+from decimal import Decimal, InvalidOperation
 from typing import Dict, Any, List
 
 def check_marp_frontmatter(deck: str) -> Dict[str, Any]:
@@ -76,24 +77,57 @@ def check_slide_budgets(slides: List[str], max_allowed: int = 18) -> Dict[str, A
         "details": slide_details
     }
 
+# --- Procedencia numérica ---------------------------------------------------
+# Solo se comparan cifras que son afirmaciones: se excluyen notas del orador
+# (comentarios HTML), bloques de código, código en línea, URLs y el frontmatter.
+# Coincidencia por valor numérico con límites de token, no por subcadena.
+NUMBER_RE = re.compile(r'(?<![A-Za-z_\d.])(\d{1,3}(?:,\d{3})+|\d+)(\.\d+)?(%)?(?!\d)')
+FRONTMATTER_RE = re.compile(r'\A\s*---\s*\n.*?\n---[ \t]*(?:\n|\Z)', re.S)
+FENCE_BLOCK_RE = re.compile(r'^\s*(`{3,}|~{3,}).*?^\s*\1[ \t]*$', re.M | re.S)
+CLAIM_NOISE = [
+    (FRONTMATTER_RE, ' '),
+    (re.compile(r'<style>[\s\S]*?</style>'), ' '),
+    (re.compile(r'<!--[\s\S]*?-->'), ' '),
+    (FENCE_BLOCK_RE, ' '),
+    (re.compile(r'`[^`\n]+`'), ' '),
+    (re.compile(r'https?://\S+'), ' '),
+]
+
+
+def _claim_text(text: str) -> str:
+    for pattern, repl in CLAIM_NOISE:
+        text = pattern.sub(repl, text)
+    return text
+
+
+def _numbers_in(text: str) -> List[str]:
+    return [m.group(0) for m in NUMBER_RE.finditer(_claim_text(text))]
+
+
+def _canonical(token: str):
+    core = token.rstrip('%').replace(',', '')
+    try:
+        return format(Decimal(core).normalize(), 'f')
+    except InvalidOperation:
+        return None
+
+
+def _is_checkable(token: str) -> bool:
+    if token.endswith('%') or '.' in token or ',' in token:
+        return True
+    value = int(token)
+    return value >= 10 and not (1900 <= value <= 2099)
+
+
 def check_numeric_provenance(deck: str, primary_text: str) -> List[str]:
     if not primary_text:
         return []
-
-    # Extraer porcentajes, decimales y enteros mayores o iguales a 10
-    # Excluyendo el formato 16:9 de Marp y años canónicos comunes si no están en disputa
-    raw_tokens = re.findall(r'\b(?:\d+(?:\.\d+)?%|\d+\.\d+\b|\d{2,}\b)', deck)
-    
-    # Filtrar tokens de sintaxis de Marp (16, 9)
-    filtered = []
-    for token in set(raw_tokens):
-        if token in ("16", "9"):
-            continue
-        # Comprobar si el token numérico existe como subcadena en el texto primario
-        if token not in primary_text:
-            filtered.append(token)
-
-    return sorted(filtered)
+    source_values = {_canonical(t) for t in _numbers_in(primary_text)} - {None}
+    unverified = set()
+    for token in _numbers_in(deck):
+        if _is_checkable(token) and _canonical(token) not in source_values:
+            unverified.add(token)
+    return sorted(unverified)
 
 def check_bibtex_citations(deck: str, bibtex: str) -> List[str]:
     if not bibtex:
