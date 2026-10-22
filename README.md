@@ -1,139 +1,190 @@
-# Gumloop Academic & Presentation Agent Suite (v2.1)
+# Gumzen ✦ Academic Research & Presentation Suite for Gumloop
 
-Hola. Bienvenido a la **Suite Académica y de Presentaciones para Gumloop**. 
+<p align="center">
+  <strong>Turn scientific papers and research into grounded, verified Marp presentation decks using structured Gumloop workflows.</strong>
+</p>
 
-Este repositorio reúne tres agentes especializados, scripts ligeros y plantillas de diapositivas en **Marp Markdown** pensados para investigar artículos científicos, extraer evidencia verificada y compilar presentaciones claras y profesionales, cuidando al máximo el consumo de créditos.
-
-Todo el contenido es de código abierto, transparente y está pensado para utilizarse tanto en la nube de **Gumloop** como en tu editor local (**VS Code + Marp**).
+<p align="center">
+  <img src="https://img.shields.io/badge/Gumloop-Workflow_Compatible-c53030?style=flat-square" alt="Gumloop Compatible" />
+  <img src="https://img.shields.io/badge/Marp-16%3A9_Panoramas-0288d1?style=flat-square&logo=markdown" alt="Marp Slides" />
+  <img src="https://img.shields.io/badge/License-MIT-green?style=flat-square" alt="MIT License" />
+  <img src="https://img.shields.io/badge/Epistemic_Rigor-Oyza_C11--C16-161b22?style=flat-square" alt="Oyza Protocol" />
+</p>
 
 ---
 
-## ⚡ 1. Inicio Rápido (En 3 Pasos)
+## ⌗ Overview
 
-Puedes empezar a trabajar hoy mismo sin necesidad de configuraciones complicadas:
+**Gumzen** is a modular agent toolkit designed specifically for **[Gumloop](https://www.gumloop.com)**. It bridges the gap between unstructured academic literature and professional presentation slides.
 
-### Opción A: Uso Local (100% Gratuito y sin Servidores)
-1. **Recupera artículos de investigación de arXiv:**  
-   Ejecuta el extractor ligero con Node.js (cero dependencias externas):
+Most AI agents struggle with academic tasks: when asked to "research a paper and build slides," unconstrained conversational agents tend to hallucinate fake citations, invent non-existent statistics, and wander into open-ended search loops.
+
+Gumzen solves this through **bounded, decoupled workflow topology**:
+1. **Zero-Token Literature Extraction:** Fetches verified papers and abstracts from public repositories (such as arXiv) via a native Python node, avoiding unconstrained LLM browsing.
+2. **Empirical Fact Grounding:** Uses the `academic-literature-grounding` skill to split findings into observable evidence, author inferences, and explicit methodology limits.
+3. **Copy-Ready Marp Decks:** Uses `presentation-deck-architect` to produce pure, widescreen 16:9 Marp Markdown slides with integrated speaker notes and typography budget controls.
+4. **Epistemic Certainty Gate:** Employs `fact-audit-and-certainty` to reject hallucinated numbers or ghost DOIs before you present to an audience.
+
+---
+
+## 🔄 Gumloop Workflow Architecture
+
+The suite is orchestrated around a 5-node directed acyclic graph (DAG) defined in [`workflows/academic_research_pipeline.json`](workflows/academic_research_pipeline.json):
+
+```text
+┌─────────────────┐      ┌───────────────────────────┐      ┌─────────────────────────────┐
+│  1. USER INPUT  │ ───► │  2. CUSTOM PYTHON NODE    │ ───► │ 3. LITERATURE GROUNDING     │
+│  (Topic / Link) │      │  (arXiv Metadata Fetcher) │      │    (Evidence Matrix & Bib)  │
+└─────────────────┘      └───────────────────────────┘      └──────────────┬──────────────┘
+                                                                           │
+                                                                           ▼
+┌─────────────────────────┐      ┌─────────────────────────────┐
+│  5. FACT AUDIT GATE     │ ◄─── │ 4. PRESENTATION ARCHITECT   │
+│  (Oyza Certainty Check) │      │    (16:9 Marp + Notes)      │
+└─────────────────────────┘      └─────────────────────────────┘
+```
+
+---
+
+## ⚡ Deployment & Setup Guides
+
+<details>
+<summary><b>🚀 How to Deploy on Gumloop (Click to expand)</b></summary>
+<br>
+
+Follow these steps to run the complete pipeline inside your Gumloop workspace:
+
+1. **Log in to Gumloop:** Open [gumloop.com](https://www.gumloop.com) and navigate to your **Workflows** dashboard.
+2. **Import the Pipeline:** Create a new flow and import [`workflows/academic_research_pipeline.json`](workflows/academic_research_pipeline.json).
+3. **Configure Node 2 (Custom Python):**
+   - Paste the code from [`workflows/custom_nodes/arxiv_semantic_fetcher.py`](workflows/custom_nodes/arxiv_semantic_fetcher.py).
+   - Ensure the entry function is set to `main(query, max_results)`.
+4. **Attach Agent Skills:**
+   - For **Node 3**, copy the instructions from [`skills/academic-literature-grounding/SKILL.md`](skills/academic-literature-grounding/SKILL.md).
+   - For **Node 4**, copy the instructions from [`skills/presentation-deck-architect/SKILL.md`](skills/presentation-deck-architect/SKILL.md).
+   - For **Node 5**, copy the instructions from [`skills/fact-audit-and-certainty/SKILL.md`](skills/fact-audit-and-certainty/SKILL.md).
+5. **Run & Inspect:** Provide a research topic (e.g., *"autonomous agent memory architectures"*). The workflow outputs certified Marp slides ready for projection.
+
+<br>
+</details>
+
+<details>
+<summary><b>💻 Local Testing & Standalone CLI (Click to expand)</b></summary>
+<br>
+
+You can also run and test every component locally without cloud dependencies:
+
+1. **Fetch research papers using pure Node.js:**
    ```bash
    node workflows/custom_nodes/arxiv_semantic_fetcher.cjs
    ```
-2. **Genera tus diapositivas:**  
-   Copia el resumen obtenido y abre la plantilla de [`skills/presentation-deck-architect/SKILL.md`](skills/presentation-deck-architect/SKILL.md) en tu editor favorito.
-3. **Previsualiza y exporta a PDF:**  
-   Instala la extensión **Marp for VS Code** o compila directamente desde tu terminal:
+2. **Compile slides to PDF using Marp CLI:**
    ```bash
-   npx @marp-team/marp-cli presentacion.md --pdf
+   npx @marp-team/marp-cli your-presentation.md --pdf
+   ```
+3. **Run deterministic test suites:**
+   ```bash
+   node tests/suite_runner.cjs
+   node tests/test_humanize_and_marp.cjs
    ```
 
-### Opción B: Despliegue en Gumloop (Flujo DAG Automatizado)
-1. Inicia sesión en tu cuenta de [Gumloop.com](https://www.gumloop.com).
-2. Crea un nuevo flujo e importa el archivo [`workflows/academic_research_pipeline.json`](workflows/academic_research_pipeline.json).
-3. Conecta el script de Python en el nodo custom y las directivas de `skills/` en los tres nodos de agente.
-4. Ejecuta el pipeline: el recorrido completo consume entre **3 y 5 créditos**.
+<br>
+</details>
 
 ---
 
-## 💬 2. La Experiencia Interactiva y el Formato "Copy-Ready"
+## 📦 The "Copy-Ready" Output Contract
 
-Cuando converses con un agente equipado con estas skills, notarás un diseño pensado para eliminar fricciones:
+When interacting with an agent running these skills, output formatting is designed around zero friction:
 
 ```text
-Usuario: "Tengo este borrador de paper sobre agentes autónomos. ¿Me preparas una presentación de 6 láminas?"
+User:  "Here is my research draft on agentic systems. Can you turn it into a 6-slide talk?"
 
-Agente:  "Con gusto. Preparé una estructura de 6 láminas en tema oscuro panorámico (16:9),
-         con notas de orador y presupuesto de texto para evitar desbordamientos:
+Agent: "Here is your 6-slide deck formatted in 16:9 widescreen with speaker notes:
 
-         ┌────────────────────────────────────────────────────────┐
-         │ ```markdown                                            │
-         │ ---                                                    │
-         │ marp: true                                             │
-         │ size: 16:9                                             │
-         │ ...                                                    │
-         │ ```                                                    │
-         └────────────────────────────────────────────────────────┘
-         
-         💡 Consejos para tu exposición:
-         - Tiempo estimado total: 7 minutos.
-         - En la lámina 3, subraya el contraste del baseline antes de pasar a la métrica.
-         - Para exportar a PDF: npx @marp-team/marp-cli presentacion.md --pdf"
+       ┌────────────────────────────────────────────────────────┐
+       │ ```markdown                                            │
+       │ ---                                                    │
+       │ marp: true                                             │
+       │ size: 16:9                                             │
+       │ theme: gaia                                            │
+       │ ...                                                    │
+       │ ```                                                    │
+       └────────────────────────────────────────────────────────┘
+       
+       💡 Speaker Notes Summary:
+       - Estimated talk duration: 8 minutes.
+       - Slide 3: Focus on the baseline gap before discussing your metrics.
+       - To compile to PDF: npx @marp-team/marp-cli deck.md --pdf"
 ```
 
-> 🎯 **El botón de copiar hace lo que esperas:** Al pulsar el botón de copiar del bloque de código, obtienes **únicamente** el código fuente de las diapositivas. Sin saludos de chatbot, sin firmas personales y sin enlaces de contacto que tengas que borrar a mano.
+> 🎯 **One-Click Copy:** Clicking the native "Copy" button on the fenced block copies **only** valid, compiling Marp source code. No conversational fluff, no signatures, and no personal contact links to manually delete.
 
 ---
 
-## 🧭 3. ¿Por Qué Nace Este Proyecto?
+## 🛠️ The 3 Core Skills
 
-Al trabajar con modelos de lenguaje aplicados a la investigación académica suelen surgir dos cuellos de botella:
-
-1. **Gasto descontrolado de créditos:** Un agente al que se le dice *"investiga en la web y diseña una presentación"* entra con frecuencia en bucles de navegación sin rumbo, consumiendo entre 40 y 100 créditos por corrida. Esta suite resuelve ese problema mediante un **pipeline acotado en dos etapas** con costo fijo.
-2. **Citas y cifras alucinadas:** Los modelos tienden a inflar porcentajes o inventar identificadores DOI inexistentes. Esta suite incorpora principios de calibración epistémica (**Protocolo Oyza C11–C16**): toda afirmación debe rastrearse a una sección concreta de la fuente analizada; de lo contrario, se cataloga como hipótesis abierta antes de llegar a la lámina final.
-
----
-
-## 🗂️ 4. Estructura del Repositorio
-
-```text
-Gumloop/
-├── LICENSE                             <- Licencia abierta MIT
-├── ATTRIBUTION.md                      <- Reconocimiento transparente de fuentes e inspiraciones
-├── README.md                           <- Guía amigable de uso y bienvenida
-│
-├── core/
-│   └── OYZA_INTERACTION_PROTOCOL.md    <- Protocolo de identidad, certeza y límites C1–C16
-│
-├── skills/
-│   ├── academic-literature-grounding/  <- Extracción de evidencia empírica y citas BibTeX
-│   │   └── SKILL.md
-│   ├── presentation-deck-architect/    <- Compilador de diapositivas Marp 16:9 con notas
-│   │   └── SKILL.md
-│   └── fact-audit-and-certainty/       <- Auditor adversarial de procedencia y sintaxis
-│       └── SKILL.md
-│
-├── workflows/
-│   ├── academic_research_pipeline.json <- Blueprint DAG v2.0 para Gumloop
-│   └── custom_nodes/                   <- Extractores de arXiv (Cero créditos LLM)
-│       ├── arxiv_semantic_fetcher.py   <- Para el nodo Python en la nube de Gumloop
-│       └── arxiv_semantic_fetcher.cjs  <- Para pruebas y uso local con Node.js
-│
-├── tests/                              <- Pruebas automatizadas de integridad física
-│   ├── suite_runner.cjs
-│   └── test_humanize_and_marp.cjs
-│
-└── docs/
-    ├── GUMLOOP_AGENT_ENGINEERING.md    <- Arquitectura, créditos y comparativa con otros frameworks
-    └── NAMING_AND_ECOSYSTEM_SURVEY.md  <- Opciones de nomenclatura para GitHub
-```
-
----
-
-## 🛠️ 5. Resumen de las Tres Skills Académicas
-
-| Skill | Qué Entrada Recibe | Qué Entrega al Usuario |
+| Skill | Primary Input | Concrete Deliverable |
 | :--- | :--- | :--- |
-| **`academic-literature-grounding`** | Texto o PDF de artículos de investigación. | Matriz de datos medidos vs inferencias del autor, límites metodológicos y bloque de citación BibTeX listo para exportar. |
-| **`presentation-deck-architect`** | Resumen estructurado del paper o notas. | Presentación panorámica (16:9) en Marp Markdown de 5 a 6 diapositivas, tema oscuro equilibrado y notas completas para el orador (`<!-- Speaker Notes -->`). |
-| **`fact-audit-and-certainty`** | Las diapositivas generadas frente al documento original. | Dictamen de auditoría en cuatro compuertas (procedencia, exactitud de cifras, causalidad y límites de líneas) con reporte en Markdown y JSON. |
+| **[`academic-literature-grounding`](skills/academic-literature-grounding)** | Paper text or PDF context | Evidence matrix (observed facts vs. theoretical deductions), stated limits, and clean Unicode BibTeX citations. |
+| **[`presentation-deck-architect`](skills/presentation-deck-architect)** | Structured research summary | 16:9 Marp presentation deck with KaTeX math (`$x^2$`), multi-column layout, and timed speaker notes. |
+| **[`fact-audit-and-certainty`](skills/fact-audit-and-certainty)** | Generated slides vs. original text | 4-gate verification report (provenance, numeric accuracy, causal claim bounds, and $\le 18$ line typography limit). |
 
 ---
 
-## 💰 6. Comparativa de Rendimiento y Consumo en Gumloop
+## 🗺️ Roadmap & Ecosystem Evolution
 
-| Paradigma de Agente | Pasos de Razonamiento | Riesgo de Citas Fantasma | Consumo Estimado |
-| :--- | :---: | :---: | :---: |
-| **Bucle Agéntico Abierto** | 12 a 25 iteraciones | Alto (citas no verificadas) | 40 a 100 créditos |
-| **Pipeline Acotado en 2 Fases (Esta Suite)** | 3 nodos determinados | 0% en datos auditados (Oyza Gate) | **3 a 5 créditos** |
+To expand Gumzen from a skill collection into a comprehensive knowledge engine, the following modules are planned:
+
+1. **Automated Scheduled Digest (Gumloop Cron Node):**
+   - Set up scheduled triggers that scan arXiv and PubMed weekly for specific keywords and compile an automated digest deck directly into a shared Google Drive folder.
+2. **Multi-Format Export Connectors:**
+   - Expand beyond Marp Markdown by adding native Gumloop integration with the **Google Slides API** and **Notion Database** blocks for instant multi-channel publication.
+3. **Human-in-the-Loop Checkpoint:**
+   - Introduce a Gumloop Approval / Form Node between literature extraction and slide generation, allowing researchers to refine key claims before slides are compiled.
+4. **Cross-Engine Portability (MCP Server):**
+   - Expose Gumzen skills as an open Model Context Protocol (MCP) server so that local tools (like Claude Code, Cursor, or Codex) can invoke the exact same academic pipelines.
 
 ---
 
-## 🤝 7. Licencia y Reconocimiento Comunitario
+## 🤝 Attribution & Open Source
 
-Este proyecto es software libre distribuido bajo los términos de la [Licencia MIT](LICENSE).
+Distributed under the **[MIT License](LICENSE)**.
 
-Reconocemos con gratitud a las comunidades y proyectos abiertos que sirvieron como cimientos:
-- A la comunidad de [Marp](https://marp.app) y a **robonuggets** por sus patrones de diseño para presentaciones técnicas en Markdown.
-- A **ngtiendong** por sus investigaciones sobre desconstrucción de literatura científica y prompt engineering.
-- Al ecosistema **Axkern** y al protocolo **Oyza C1–C16** por las pautas de certeza epistémica y control estricto de recursos.
+This project builds upon the open-source work of the community:
+- [Marp Team](https://marp.app) and **robonuggets** for Markdown slide design conventions.
+- **ngtiendong** for research literature grounding patterns.
+- The **Axkern** ecosystem and **Oyza C1–C16** protocol for epistemic certainty gates and anti-hallucination contracts.
 
-Consulta [`ATTRIBUTION.md`](ATTRIBUTION.md) para conocer el desglose detallado de autoría y las innovaciones originales introducidas en este trabajo. Si encuentras formas de mejorar estas herramientas, los aportes y sugerencias de la comunidad son bienvenidos.
+Review [`ATTRIBUTION.md`](ATTRIBUTION.md) for full authorship and licensing details.
+
+---
+
+<details>
+<summary><b>🇪🇸 Versión Completa en Español (Haz clic para expandir)</b></summary>
+<br>
+
+# Gumzen ✦ Suite Académica y de Presentaciones para Gumloop
+
+### ⌗ Descripción General
+**Gumzen** es un conjunto modular de herramientas agénticas diseñado específicamente para flujos de trabajo en **Gumloop**. Su propósito es transformar artículos de investigación y literatura científica en presentaciones profesionales de diapositivas en **Marp Markdown**, garantizando rigor epistémico y evitando alucinaciones.
+
+### ⌗ Arquitectura Desacoplada
+Para evitar que los modelos de lenguaje divaguen en bucles infinitos de búsqueda o inventen citas inexistentes, Gumzen organiza el flujo en etapas delimitadas:
+1. **Extracción en Python nativo:** Consulta APIs como arXiv sin consumir tokens de LLM.
+2. **Deconstrucción de fuentes:** Separa datos experimentales de deducciones teóricas del autor.
+3. **Formateo Marp 16:9:** Genera diapositivas panorámicas con notas de orador integradas y control estricto de presupuesto de texto ($\le 18$ líneas por lámina).
+4. **Compuerta de certeza (Oyza C11–C16):** Rechaza afirmaciones no respaldadas antes de la entrega final.
+
+### ⌗ Formato "Copy-Ready"
+Al pulsar el botón nativo de «Copiar» en el bloque de código, obtienes **únicamente** el código fuente limpio de las diapositivas. Sin textos de saludo, sin marcas personales ni enlaces invasivos que tengas que borrar antes de tu exposición.
+
+### ⌗ Habilidades Principales
+- **`academic-literature-grounding`:** Extracción empírica de metodología, muestras y citas BibTeX.
+- **`presentation-deck-architect`:** Compilador de diapositivas Marp con soporte KaTeX y paletas sobrias.
+- **`fact-audit-and-certainty`:** Auditor adversarial de procedencia y exactitud numérica.
+
+Consulte [`ATTRIBUTION.md`](ATTRIBUTION.md) y [`LICENSE`](LICENSE) para los detalles completos de licencias abiertas y atribución.
+
+<br>
+</details>

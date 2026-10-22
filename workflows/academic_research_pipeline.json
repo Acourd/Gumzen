@@ -1,9 +1,9 @@
 {
   "name": "Academic Research & Marp Presentation Pipeline",
-  "version": "2.0.0",
-  "description": "Pipeline acotado de 2 fases para investigación científica, extracción de evidencia empírica y generación de presentaciones Marp en Gumloop con costo predecible de 3 a 5 créditos.",
-  "credit_cost_estimated": "3 a 5 créditos por ejecución",
-  "author": "Comunidad Abierta (Axkern / Gumloop Contributors)",
+  "version": "2.1.0",
+  "description": "Pipeline estructurado para investigación científica, extracción de evidencia empírica y compilación de presentaciones Marp en Gumloop mediante etapas desacopladas.",
+  "architecture_pattern": "Bounded Two-Pass Execution (Deterministic DAG)",
+  "author": "Acourd & Open Source Contributors",
   "license": "MIT",
   "nodes": [
     {

@@ -213,12 +213,12 @@ async function main() {
     assert.ok(typeof result.bibtex === 'string', 'bibtex debe ser string');
   });
 
-  runTest('README.md tiene guía rápida de 3 pasos, ejemplo interactivo y tabla de costos', () => {
+  runTest('README.md documenta Gumloop, guía interactiva y enlaza a atribuciones', () => {
     const readme = fs.readFileSync(path.join(ROOT_DIR, 'README.md'), 'utf-8');
-    assert.ok(readme.includes('1. Inicio Rápido'), 'Debe contener inicio rápido');
-    assert.ok(readme.includes('2. La Experiencia Interactiva'), 'Debe documentar la experiencia interactiva');
-    assert.ok(readme.includes('3 a 5 créditos'), 'Debe documentar el costo predecible');
+    assert.ok(readme.includes('Gumloop'), 'Debe enfocar la documentación en Gumloop');
     assert.ok(readme.includes('ATTRIBUTION.md'), 'Debe enlazar a las atribuciones');
+    assert.ok(readme.includes('academic_research_pipeline.json'), 'Debe referenciar el pipeline de Gumloop');
+    assert.ok(readme.includes('Copy-Ready'), 'Debe explicar el formato copiable de diapositivas');
   });
 
   console.log('\n====================================================');
