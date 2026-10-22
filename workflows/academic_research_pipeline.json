@@ -1,8 +1,8 @@
 {
   "name": "Academic Research & Marp Presentation Pipeline",
-  "version": "2.2.0",
-  "description": "Pipeline estructurado para investigación científica, extracción de evidencia empírica y compilación de presentaciones Marp en Gumloop mediante etapas desacopladas.",
-  "architecture_pattern": "Bounded Two-Pass Execution (Deterministic DAG)",
+  "version": "2.3.0",
+  "description": "Pipeline estructurado de 6 etapas con oráculo determinista de código (gate_checks) y auditoría cualitativa de certeza (Oyza Core).",
+  "architecture_pattern": "Bounded Two-Pass Execution with Deterministic Code Gate",
   "author": "Acourd & Open Source Contributors",
   "license": "MIT",
   "nodes": [
@@ -62,14 +62,28 @@
       "outputs": ["marp_slides_markdown"]
     },
     {
-      "id": "node_5_audit_gate",
+      "id": "node_5_deterministic_gate",
+      "type": "custom_python",
+      "title": "Deterministic Gate Checks (0 créditos LLM)",
+      "description": "Verifica físicamente en código: directivas Marp 16:9, presupuesto de 18 líneas, notas con tiempo, y procedencia de cifras y citas BibTeX.",
+      "script_path": "workflows/custom_nodes/gate_checks.py",
+      "inputs": {
+        "slides_markdown": "node_4_agent_marp.marp_slides_markdown",
+        "primary_text": "node_2_python_fetcher.papers_markdown",
+        "bibtex": "node_2_python_fetcher.bibtex"
+      },
+      "outputs": ["gate_report_markdown", "gate_report_json"]
+    },
+    {
+      "id": "node_6_audit_gate",
       "type": "llm_agent",
-      "title": "Epistemic Fact Audit (Oyza Core Certainty)",
-      "description": "Comprueba procedencia, precisión numérica, límites causales y presupuesto de líneas en Marp antes de la entrega.",
+      "title": "Epistemic Semantic Audit (Oyza Core)",
+      "description": "Revisa los límites causales, falsas inferencias y reservas metodológicas, incorporando el reporte mecánico del gate determinista.",
       "skill_ref": "skills/research/epistemic-auditor/SKILL.md",
       "inputs": {
-        "source_data": "node_3_agent_grounding.structured_summary",
-        "generated_slides": "node_4_agent_marp.marp_slides_markdown"
+        "source_data": "node_2_python_fetcher.papers_markdown",
+        "generated_slides": "node_4_agent_marp.marp_slides_markdown",
+        "gate_report": "node_5_deterministic_gate.gate_report_markdown"
       },
       "outputs": ["final_certified_slides", "audit_report", "json_verdict"]
     }

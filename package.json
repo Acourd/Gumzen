@@ -1,10 +1,11 @@
 {
   "name": "gumzen-agent-suite",
-  "version": "2.2.0",
-  "description": "Suite de agentes y flujos para investigación científica, programación y comunicación en Gumloop con el protocolo Oyza Core.",
+  "version": "2.3.0",
+  "description": "Suite epistémica de agentes y flujos para investigación científica, programación y comunicación en Gumloop con el protocolo Oyza Core.",
   "main": "workflows/custom_nodes/arxiv_semantic_fetcher.cjs",
   "scripts": {
-    "test": "node tests/suite_runner.cjs && node tests/test_humanize_and_marp.cjs",
+    "test": "node tests/suite_runner.cjs && node tests/test_gate_checks.cjs && node tests/test_humanize_and_marp.cjs",
+    "gate:check": "node tests/test_gate_checks.cjs",
     "fetch:arxiv": "node workflows/custom_nodes/arxiv_semantic_fetcher.cjs"
   },
   "keywords": [

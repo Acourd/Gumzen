@@ -102,12 +102,13 @@ Clicking the native "Copy" button in your browser captures only clean, valid Mar
 
 ## 🔄 Example Research Pipeline (Gumloop DAG)
 
-The repository provides a complete 5-node workflow in [`workflows/academic_research_pipeline.json`](workflows/academic_research_pipeline.json):
+The repository provides a complete 6-node workflow in [`workflows/academic_research_pipeline.json`](workflows/academic_research_pipeline.json):
 1. **User Input:** Topic or arXiv research query.
 2. **arXiv Fetcher (Python):** Retrieves verified metadata and abstracts without LLM token cost.
 3. **Paper Deconstructor (Agent):** Extracts empirical evidence and builds a normalized BibTeX registry.
 4. **Presentation Architect (Agent):** Compiles 16:9 Marp slides with speaker notes.
-5. **Epistemic Auditor (Agent):** Inspects claims, numerical precision, and typographical limits before certifying.
+5. **Deterministic Gate Checks (Python):** Physically checks Marp frontmatter, 18-line budget, notes coverage, and numeric/BibTeX provenance in code.
+6. **Epistemic Auditor (Agent):** Evaluates semantic causal bounds and methodological limits, incorporating the physical gate report.
 
 ---
 
@@ -120,7 +121,8 @@ npm test
 ```
 
 This executes:
-- `tests/suite_runner.cjs`: Validates file structures, DAG contracts, BibTeX generation, and all 15 skills.
+- `tests/suite_runner.cjs`: Validates file structures, DAG contracts, BibTeX generation, zero legacy duplicates, and all 15 skills.
+- `tests/test_gate_checks.cjs`: Tests deterministic gate checks with mutations for frontmatter, line budgets, speaker notes, and provenance.
 - `tests/test_humanize_and_marp.cjs`: Audits prose cadence, burstiness ($\sigma^2 \ge 6.0$, $CV \ge 0.25$), anti-slop rules, and Marp syntax.
 
 ---

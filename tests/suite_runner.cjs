@@ -172,27 +172,34 @@ async function main() {
     assert.ok(content.includes('Límite Declarado'), 'Debe distinguir límites metodológicos');
   });
 
-  runTest('epistemic-auditor contiene las 4 compuertas operacionales y salida JSON', () => {
+  runTest('skills/ contiene exclusivamente las 3 carpetas canónicas (cero duplicados legados)', () => {
+    const skillsDir = path.join(ROOT_DIR, 'skills');
+    const entries = fs.readdirSync(skillsDir, { withFileTypes: true })
+      .filter(e => e.isDirectory())
+      .map(e => e.name);
+    assert.deepStrictEqual(entries.sort(), ['communication', 'programming', 'research'].sort(), 'skills/ solo debe contener communication, programming y research');
+  });
+
+  runTest('epistemic-auditor contiene las compuertas semánticas y salida JSON sin falso oráculo', () => {
     const content = fs.readFileSync(
       path.join(ROOT_DIR, 'skills/research/epistemic-auditor/SKILL.md'),
       'utf-8'
     );
-    assert.ok(content.includes('PROCEDENCIA'), 'Compuerta 1 presente');
-    assert.ok(content.includes('PRECISIÓN NUMÉRICA'), 'Compuerta 2 presente');
-    assert.ok(content.includes('LÍMITES CAUSALES'), 'Compuerta 3 presente');
-    assert.ok(content.includes('PRESUPUESTO MARP'), 'Compuerta 4 presente');
-    assert.ok(content.includes('18'), 'Presupuesto de 18 líneas presente');
-    assert.ok(content.includes('audit_passed'), 'Salida JSON presente');
+    assert.ok(content.includes('PROCEDENCIA'), 'Compuerta de procedencia presente');
+    assert.ok(content.includes('LÍMITES CAUSALES'), 'Compuerta de límites causales presente');
+    assert.ok(content.includes('semantic_audit_passed'), 'Salida JSON semántica presente');
+    assert.ok(content.includes('deterministic_gate_passed'), 'Integración con el gate determinista presente');
+    assert.ok(!content.includes('"epistemic_score": 1.0'), 'No debe simular falsos scores continuos');
   });
 
   // 3. Verificación de Workflow DAG y Contrato de Nodos
   console.log('\n--- 3. Integridad de Workflows y Contratos DAG ---');
 
-  runTest('academic_research_pipeline.json es JSON válido y tiene 5 nodos con enlaces coherentes', () => {
+  runTest('academic_research_pipeline.json es JSON válido y tiene 6 nodos con enlaces coherentes', () => {
     const jsonPath = path.join(ROOT_DIR, 'workflows/academic_research_pipeline.json');
     assert.ok(fs.existsSync(jsonPath), 'El pipeline JSON debe existir');
     const pipeline = JSON.parse(fs.readFileSync(jsonPath, 'utf-8'));
-    assert.strictEqual(pipeline.nodes.length, 5, 'Debe tener exactamente 5 nodos');
+    assert.strictEqual(pipeline.nodes.length, 6, 'Debe tener exactamente 6 nodos');
 
     const nodeOutputsMap = new Map();
     for (const node of pipeline.nodes) {

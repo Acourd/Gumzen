@@ -51,7 +51,8 @@ REGLAS DE DISEÑO:
 2. Presupuesto Tipográfico: Máximo 18 líneas equivalentes por lámina para evitar desbordamientos visuales.
 3. Notas de Orador en Cada Lámina: Incluye siempre un bloque <!-- Speaker Notes: [⏱️ X segundos] Qué decir en voz alta -->.
 4. Soporte Matemático: Emplea notación KaTeX con $ para fórmulas en línea y $$ para ecuaciones independientes.
-5. Salida Limpia: Entrega el código Marp completo dentro de un único bloque markdown sin comentarios iniciales ni firmas personales.
+5. PROCEDENCIA NUMÉRICA ESTRICTA: Rellena los marcadores `[XX%]` y `[N=...]` exclusivamente con cifras verificables en el texto primario recibido. Si una métrica no figura en la fuente, exprésala de forma cualitativa sin inventar números.
+6. Salida Limpia: Entrega el código Marp completo dentro de un único bloque markdown sin comentarios iniciales ni firmas personales.
 
 PLANTILLA MAESTRA COMPILABLE (6 LÁMINAS):
 
@@ -96,13 +97,13 @@ Presenta la investigación en una frase clara. Enfatiza el vacío concreto que m
 ## 1. Problema en el Estado del Arte
 
 - **Vacío identificado:** Los sistemas previos asumen consistencia sin validar entradas no estructuradas.
-- **Fricción empírica:** El 64% de las fallas de inferencia surgen de datos ambiguos.
+- **Fricción empírica:** [XX%] de las fallas de inferencia surgen de datos ambiguos.
 - **Pregunta central:** ¿Cómo asegurar convergencia determinista con presupuesto acotado?
 - **Objetivo:** Demostrar estabilidad sobre un corpus de evaluación verificado.
 
 <!-- Speaker Notes:
 [⏱️ 60 segundos]
-Subraya el dato del 64%. Explica que el problema afecta sistemas en producción y no es una curiosidad abstracta.
+Subraya la métrica de fricción. Explica que el problema afecta sistemas en producción y no es una curiosidad abstracta.
 -->
 
 ---
@@ -111,7 +112,7 @@ Subraya el dato del 64%. Explica que el problema afecta sistemas en producción 
 
 | Parámetro | Configuración Evaluada | Baseline de Control |
 | :--- | :--- | :--- |
-| **Muestra ($N$)** | 1,200 ejecuciones verificadas | 400 pruebas abiertas |
+| **Muestra ($N$)** | [N=muestra evaluada] ejecuciones | [N=control] pruebas abiertas |
 | **Arquitectura** | Pipeline acotado en dos fases | Bucle iterativo no acotado |
 | **Métrica clave** | Tasa de error en recuperación ($E_{rec}$) | Consumo de recursos |
 
@@ -128,16 +129,16 @@ Explica la paridad de condiciones entre el grupo de control y la propuesta evalu
 <div>
 
 ### Reducción de Error
-- Tasa inicial: **14.2%**
-- Con pipeline determinista: <span class="metric">2.1%</span>
-- Reducción observada: **85.2%** ($p < 0.01$)
+- Tasa inicial: **[Métrica base %]**
+- Con pipeline determinista: <span class="metric">[Métrica lograda %]</span>
+- Reducción observada: **[XX%]** ($p < 0.01$)
 
 </div>
 <div>
 
 ### Eficiencia Operativa
-- Consumo medio: **4.2 unidades**
-- Ahorro relativo: **~90%** frente al control
+- Consumo medio: **[Unidades medias]**
+- Ahorro relativo: **~[XX%]** frente al control
 - Función de costo: $\mathcal{L}_{cost} = \alpha \cdot \text{tokens} + \beta \cdot \text{calls}$
 
 </div>
@@ -145,7 +146,7 @@ Explica la paridad de condiciones entre el grupo de control y la propuesta evalu
 
 <!-- Speaker Notes:
 [⏱️ 75 segundos]
-Guía la mirada de la sala a la métrica del 2.1%. Explica que la ganancia proviene del diseño del flujo y no de modelos más pesados.
+Guía la mirada de la sala a la métrica lograda. Explica que la ganancia proviene del diseño del flujo y no de modelos más pesados.
 -->
 
 ---
