@@ -1,7 +1,7 @@
 # Gumzen ✦ Epistemic Agent Suite for Gumloop
 
 <p align="center">
-  <strong>15 production-ready, copy-paste agent skills powered by the Oyza Core certainty protocol. Built for research, programming, and visual communication in Gumloop workflows.</strong>
+  <strong>15 copy-paste agent skills powered by the Oyza Core certainty protocol. Built for research, programming, and visual communication in Gumloop workflows.</strong>
 </p>
 
 <p align="center">
@@ -20,8 +20,8 @@ Every agent in Gumzen runs under the behavioral guardrails of [**Oyza Core**](co
 
 - **Strict Evidence Calibration:** Differentiates reported claims, direct physical measurements, logical inferences, and unproven hypotheses.
 - **Goal Custody:** Executes explicit objectives without substituting assumed goals, and asks clarifying questions only when trade-offs materially affect scope.
-- **Zero Fluff & Zero Slop:** Eliminates sycophancy, synthetic polite preambles, and conversational filler.
-- **Contained Authority:** An analysis does not authorize destructive mutations; all actions preserve explicit rollback paths.
+- **Minimal filler:** Aims to avoid sycophancy, synthetic polite preambles, and conversational filler (a prompt-level intent, not a measured guarantee).
+- **Contained Authority:** An analysis does not authorize execution; destructive actions need explicit delegation.
 
 ---
 
@@ -33,13 +33,13 @@ You can run any Gumzen skill inside Gumloop in less than 60 seconds:
 2. **Copy the Payload:** Scroll down to the **"Bloque Listo para Copiar (Copy-Ready Payload)"** section and click the native copy button.
 3. **Paste into Gumloop:** In your Gumloop workflow canvas, drag an **AI Agent Node**, paste the payload into its **System Prompt / Instructions** field, and wire your input variables.
 
-That is all. The agent executes with calibrated boundaries, producing clean Markdown, JSON verdicts, or Marp slide decks without conversational clutter.
+Each skill sets behavioral rules for the agent. Output quality depends on the model and on the inputs you provide, and it has not been benchmarked. Read each skill's `SKILL.md` for its expected inputs (for example, the epistemic auditor needs the gate report and the primary text).
 
 ---
 
 ## 🗂️ The 15 Specialized Skills Catalog
 
-The suite is divided into three focused domains with airtight boundaries:
+The suite is divided into three focused domains with clear boundaries:
 
 ### 1. Programming & Architecture (`skills/programming/`)
 
@@ -55,7 +55,7 @@ The suite is divided into three focused domains with airtight boundaries:
 
 | Skill | Primary Focus | Concrete Deliverable |
 | :--- | :--- | :--- |
-| [**`humanizer`**](skills/communication/humanizer/SKILL.md) | Cadence & anti-slop editing | Enforces natural syntactic variation ($\sigma^2 \ge 6.0$, $CV \ge 0.25$) while purging synthetic AI clichés. |
+| [**`humanizer`**](skills/communication/humanizer/SKILL.md) | Cadence & anti-slop editing | Guides sentence-length variation and avoids common synthetic phrasing. Prompt-level guidance, not measured on outputs. |
 | [**`presentation-architect`**](skills/communication/presentation-architect/SKILL.md) | Widescreen Marp slide decks | Generates 16:9 Marp presentations with KaTeX math, a strict 18-line vertical budget, and timed speaker notes. |
 | [**`visual-explainer`**](skills/communication/visual-explainer/SKILL.md) | Spatial mental models | Translates complex flows into pure terminal ASCII blueprints and rendered GitHub Mermaid diagrams. |
 | [**`narrative-distiller`**](skills/communication/narrative-distiller/SKILL.md) | BLUF executive briefings | Compresses long threads and reports into 2-sentence conclusions with exact metrics and reversible next steps. |
@@ -69,7 +69,7 @@ The suite is divided into three focused domains with airtight boundaries:
 | [**`paper-deconstructor`**](skills/research/paper-deconstructor/SKILL.md) | Empirical paper dissection | Separates direct observations from author inferences and outputs normalized Unicode BibTeX citations. |
 | [**`concept-synthesizer`**](skills/research/concept-synthesizer/SKILL.md) | Cross-domain isomorphisms | Uncovers formal mathematical and systemic equivalents across different vocabularies and disciplines. |
 | [**`socratic-tutor`**](skills/research/socratic-tutor/SKILL.md) | Active discovery inquiry | Presents minimal counter-examples to challenge assumptions without unsolicited answers or patronizing lectures. |
-| [**`epistemic-auditor`**](skills/research/epistemic-auditor/SKILL.md) | Pre-flight quality gate | Terminal 4-gate verification check (provenance, numeric accuracy, causal claim bounds, and line budgets). |
+| [**`epistemic-auditor`**](skills/research/epistemic-auditor/SKILL.md) | Pre-flight quality gate | Semantic audit of provenance and causal bounds. Numeric and Marp-budget checks come from the deterministic gate. |
 
 ---
 
@@ -80,7 +80,7 @@ Every skill in Gumzen is engineered with a strict copy-ready boundary:
 ```text
 User:   "Build a 6-slide Marp presentation explaining our distributed queue benchmark."
 
-Agent:  "Here is your certified Marp presentation ready for projection:
+Agent:  "Here is your Marp presentation ready for projection:
 
         ┌────────────────────────────────────────────────────────┐
         │ ```markdown                                            │
@@ -96,7 +96,7 @@ Agent:  "Here is your certified Marp presentation ready for projection:
         💡 Speaker Tip: Focus on the throughput drop at Slide 3 before explaining the fix."
 ```
 
-Clicking the native "Copy" button in your browser captures only clean, valid Markdown or JSON. No greetings, signatures, or promotional links are embedded in the generated artifacts.
+The copy-ready blocks are written to avoid greetings and signatures. Still review the output before publishing it.
 
 ---
 
@@ -107,8 +107,10 @@ The repository provides a complete 6-node workflow in [`workflows/academic_resea
 2. **arXiv Fetcher (Python):** Retrieves verified metadata and abstracts without LLM token cost.
 3. **Paper Deconstructor (Agent):** Extracts empirical evidence and builds a normalized BibTeX registry.
 4. **Presentation Architect (Agent):** Compiles 16:9 Marp slides with speaker notes.
-5. **Deterministic Gate Checks (Python):** Physically checks Marp frontmatter, 18-line budget, notes coverage, and numeric/BibTeX provenance in code.
-6. **Epistemic Auditor (Agent):** Evaluates semantic causal bounds and methodological limits, incorporating the physical gate report.
+5. **Deterministic Gate Checks (Python):** Checks in code, without an LLM: Marp frontmatter, 18-line budget, speaker-note timing, numeric provenance against the primary text, and BibTeX keys.
+6. **Epistemic Auditor (Agent):** Evaluates provenance and causal bounds, using the deterministic gate report.
+
+The auditor needs the gate report, the primary text (`papers_markdown`), and the slides. The DAG is a reference layout: the import format of this JSON in Gumloop has not been verified, so wire the nodes manually and paste each skill and custom-node code.
 
 ---
 
@@ -124,6 +126,17 @@ This executes:
 - `tests/suite_runner.cjs`: Validates file structures, DAG contracts, BibTeX generation, zero legacy duplicates, and all 15 skills.
 - `tests/test_gate_checks.cjs`: Tests deterministic gate checks with mutations for frontmatter, line budgets, speaker notes, and provenance.
 - `tests/test_humanize_and_marp.cjs`: Audits prose cadence, burstiness ($\sigma^2 \ge 6.0$, $CV \ge 0.25$), anti-slop rules, and Marp syntax.
+
+---
+
+## ⚠️ Known Limitations
+
+- **Numeric provenance is by value:** the gate checks that each number in the slides appears in the primary text. A correct number used in the wrong context passes.
+- **No primary text, no numeric check:** if the primary text is empty, numeric provenance is not verified.
+- **Partial coverage:** integers below 10 without `%` or decimals are not checked; years from 1900 to 2099 are ignored.
+- **Derived figures:** values computed from the source (reductions, averages) are flagged and need human review.
+- **No output benchmark:** skill quality depends on the model and inputs and has not been measured on agent outputs.
+- **Humanizer metrics** are prompt-level guidance; the tests check the skill text, not the generated prose.
 
 ---
 
@@ -155,7 +168,13 @@ Gumzen opera sobre el contrato de interacción y certeza **Oyza Core**, garantiz
 - **Investigación:** `web-research-filter`, `paper-deconstructor`, `concept-synthesizer`, `socratic-tutor`, `epistemic-auditor`.
 
 ### ⌗ Formato Copiable
-Cada habilidad contiene un bloque listo para pegar directamente en los nodos de agente de Gumloop sin comentarios iniciales ni firmas personales.
+Cada habilidad contiene un bloque listo para pegar en los nodos de agente de Gumloop, redactado para evitar saludos y firmas personales.
+
+### ⌗ Pipeline y compuertas
+El DAG de ejemplo tiene 6 nodos. La compuerta determinista (código, sin LLM) verifica el frontmatter Marp, el presupuesto de 18 líneas, las notas con tiempo, la procedencia numérica frente al texto primario y las claves BibTeX. El auditor del agente evalúa procedencia semántica y límites causales.
+
+### ⌗ Limitaciones
+La procedencia numérica compara valores, no contexto; sin texto primario no se verifican cifras. Los agentes no están evaluados con benchmarks: el comportamiento depende del modelo y de las entradas.
 
 Consulte [`ATTRIBUTION.md`](ATTRIBUTION.md) y [`LICENSE`](LICENSE) para detalles completos.
 
