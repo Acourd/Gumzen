@@ -1,93 +1,112 @@
 ---
 name: fact-audit-and-certainty
-description: "Auditor epistémico y técnico para presentaciones y síntesis académicas. Verifica trazabilidad de datos, precisión numérica y sintaxis Marp antes de la entrega final."
+description: "Auditor epistémico y técnico para presentaciones y síntesis académicas. Comprueba procedencia de datos, precisión numérica, límites causales y presupuesto de líneas en Marp antes de la entrega final."
 ---
 
-# Fact Audit & Epistemic Certainty Gate (Oyza C11–C16)
+# Fact Audit & Epistemic Certainty Gate (v2.1)
 
-Bienvenido a **Fact Audit & Certainty Gate**. Esta skill actúa como un control de calidad riguroso y constructivo. Antes de que expongas una presentación ante profesores, un congreso o tu equipo de trabajo, esta compuerta revisa cada dato, porcentaje y autor para asegurar que todo esté respaldado por los documentos de origen.
+Hola. **Fact Audit & Certainty Gate** actúa como tu revisor técnico de confianza. Su labor es someter cualquier presentación o borrador académico a una auditoría rigurosa pero constructiva antes de que lo expongas ante un comité, congreso o clase.
+
+La meta no es señalar errores por el simple hecho de criticar, sino garantizar que cada cifra, cada cita y cada lámina proyectada sea defendible con evidencia empírica sólida y sin riesgo de desbordamientos visuales.
 
 ---
 
-## 🛡️ 1. Las 4 Compuertas de Auditoría
+## 🛡️ 1. Las 4 Compuertas de Auditoría Operacional
 
-El auditor compara el borrador final (las diapositivas en Marp o el informe) contra el material de referencia original a través de cuatro filtros independientes:
+El auditor compara el borrador final contra el material original a través de cuatro compuertas independientes:
 
 ```
 ┌────────────────────────────────────────────────────────────────────────┐
-│                   COMPUERTAS DE AUDITORÍA ADVERSARIAL                  │
+│                   LAS 4 COMPUERTAS DE AUDITORÍA EPISTÉMICA             │
 ├────────────────────────────────────────────────────────────────────────┤
-│ 1. PROCEDENCIA Y CITAS: ¿Toda afirmación existe en la fuente base?     │
-│ 2. PRECISIÓN NUMÉRICA: ¿Los porcentajes y métricas son exactos?        │
-│ 3. CAUSALIDAD VS CORRELACIÓN: ¿Se confunden hipótesis con hechos?      │
-│ 4. INTEGRIDAD MARP: ¿Compila el código sin desbordar la pantalla?      │
+│ 1. PROCEDENCIA Y ATRIBUCIÓN : ¿Cada afirmación existe en la fuente?    │
+│ 2. PRECISIÓN NUMÉRICA       : ¿Los porcentajes y métricas son exactos? │
+│ 3. LÍMITES CAUSALES (C11)   : ¿Se confunde correlación con causa?      │
+│ 4. PRESUPUESTO MARP (16:9)  : ¿Compila el código sin recortar texto?   │
 └────────────────────────────────────────────────────────────────────────┘
 ```
 
-### Detalle de cada compuerta:
+### Reglas Técnicas por Compuerta:
 
-1. **Procedencia y Atribución:** Detecta si el modelo inventó un autor, un paper inexistente o un enlace DOI roto. Si algo no está en las fuentes provistas, debe retirarse o marcarse como hipótesis abierta.
-2. **Precisión Numérica:** Impide la inflación de datos (por ejemplo, transformar "58% de mejora" en "más del 80%" o calificar una muestra pequeña de 20 casos como "estudio masivo").
-3. **Causalidad (Oyza C11):** Si dos eventos ocurrieron de forma simultánea, no se permite afirmar que uno causó el otro a menos que el estudio lo haya demostrado experimentalmente con grupo de control.
-4. **Sintaxis y Límites Visuales en Marp:** Verifica que las diapositivas incluyan `size: 16:9`, que no superen las 6 viñetas por lámina y que cada diapositiva cuente con notas de orador (`<!-- Speaker Notes -->`).
+1. **Compuerta 1: Procedencia y Atribución:**
+   - Detecta citas inventadas, autores alucinados o enlaces rotos.
+   - Si una afirmación no está en el corpus proporcionado, se cataloga como `[Fuente requerida]` o se retira de la diapositiva.
+2. **Compuerta 2: Exactitud Numérica:**
+   - **Coincidencia exacta:** Si el paper indica "reducción del 14.2% al 2.1%", la diapositiva no puede generalizar a "desaparición casi total".
+   - **Tolerancia:** Redondeos razonables (ej. "85% de reducción relativa") son aceptados siempre que se conserve el valor base exacto entre paréntesis.
+3. **Compuerta 3: Límites Causales (Protocolo Oyza C11):**
+   - Una correlación estadística o precedencia temporal no demuestra causalidad a menos que el estudio cuente con un diseño experimental con grupo de control.
+   - Si no hay prueba causal directa, se corrige la redacción a términos correlacionales (*"se asocia con"*, *"se observa simultáneamente"*).
+4. **Compuerta 4: Presupuesto Tipográfico Marp (Anti-Desbordamiento en 16:9):**
+   - En una lámina panorámica con fuente estándar, el espacio vertical utilizable es de aproximadamente 18 líneas.
+   - **Fórmula de verificación:**
+     $$\text{Carga} = (\text{Viñetas} \times 2) + \text{Filas de Tabla} + \text{Encabezados} \le 18$$
+   - Si la carga supera 18 líneas, la compuerta prescribe dividir el contenido en dos diapositivas consecutivas.
+   - Verifica la presencia obligatoria de: `size: 16:9`, `paginate: true` y notas de orador con tiempo (`<!-- Speaker Notes: [⏱️ Xs] -->`).
 
 ---
 
 ## 🚦 2. Clasificación de Hallazgos y Acciones Correctivas
 
-| Severidad | Tipo de Problema | Acción Automática |
+| Nivel de Riesgo | Problema Detectado | Acción del Auditor |
 | :---: | :--- | :--- |
-| 🚨 **Bloqueante** | Cita inventada o autor alucinado | Se retira la cita y se marca `[Fuente requerida]`. |
-| 🚨 **Bloqueante** | Cifra o porcentaje sin respaldo | Se corrige al valor exacto del texto base. |
-| ⚠️ **Advertencia** | Afirmación causal no demostrada | Se suaviza a redacción correlacional o hipótesis. |
-| ⚠️ **Advertencia** | Diapositiva con exceso de texto | Se sugiere dividir el contenido en dos láminas. |
-| ℹ️ **Sugerencia** | Falta de notas de orador | Se añade propuesta de notas con tiempo estimado. |
+| 🚨 **Bloqueante** | Cita o DOI inexistente en la fuente | Se suprime la cita y se marca para revisión humana. |
+| 🚨 **Bloqueante** | Cifra inflada o muestra distorsionada | Se reemplaza por el valor numérico exacto de la fuente. |
+| ⚠️ **Advertencia** | Afirmación causal sin control experimental | Se suaviza a redacción correlacional o hipótesis. |
+| ⚠️ **Advertencia** | Lámina que supera el presupuesto de 18 líneas | Se divide el contenido en Lámina A y Lámina B. |
+| ℹ️ **Sugerencia** | Falta de notas de orador o tiempo estimado | Se añade la propuesta de notas con minutos sugeridos. |
 
 ---
 
-## 📦 3. Formato de Entrega: Dictamen Listo para Copiar
+## 📦 3. El Contrato de Salida: Bloque Listo para Copiar
 
-El auditor entrega un informe ordenado con dos secciones: una legible para personas y otra en JSON para flujos automatizados de Gumloop.
+> 💡 **Formato Limpio:** Para que el usuario o el flujo de Gumloop pueda consumir el resultado de inmediato:
+> - Si se solicitó certificar la presentación, se entrega el bloque Markdown corregido y listo para proyectar.
+> - A continuación se incluye el dictamen para el usuario y el JSON para el sistema.
 
-### A. Dictamen Humano (Aprobado o Con Observaciones)
+### A. Dictamen Humano (Legible y Amigable)
 
 ```markdown
-### 📋 DICTAMEN DE AUDITORÍA EPISTÉMICA
+### 📋 Dictamen de Auditoría y Certificación
 
-- **Estado:** ✅ APROBADO (Exit Code 0)  *(o ⚠️ OBSERVACIONES DETECTADAS)*
-- **Afirmaciones Auditadas:** 14 afirmaciones independientes.
-- **Trazabilidad a Fuentes:** 100% de datos respaldados en el corpus.
-- **Integridad Sintáctica Marp:** Conforme a especificación 16:9.
+- **Resultado Global:** ✅ APROBADO (Exit Code 0)
+- **Afirmaciones Auditadas:** 12 afirmaciones contra el corpus original.
+- **Conformidad de Fuentes:** 100% de métricas trazables a datos de origen.
+- **Presupuesto Tipográfico Marp:** Cumplido (máximo 14 líneas por lámina, 16:9).
+- **Notas de Orador:** Presentes en el 100% de las láminas con tiempos sugeridos.
 
-#### Resumen de Verificaciones:
-- [x] Sin citas fantasma ni DOIs inventados.
-- [x] Métricas numéricas coinciden exactamente con las fuentes base.
-- [x] Distinción clara entre hechos observados e hipótesis teóricas.
-- [x] Notas de orador incluidas en todas las diapositivas con tiempos estimados.
-
-#### Correcciones Aplicadas (si hubo alguna):
-1. **Diapositiva 3:** La métrica original indicaba "reducción del 14.2% al 2.1%". Se corrigió una redacción previa que generalizaba a "eliminación casi total".
+#### Ajustes Aplicados:
+1. **Lámina 3:** Se corrigió la frase "eliminación completa de fallas" por el dato medido exacto: "reducción del 14.2% al 2.1%".
+2. **Lámina 4:** Se dividió una viñeta densa en dos puntos claros para evitar desbordamiento visual.
 ```
 
-### B. Salida JSON Estructurada (Para Nodos de Gumloop)
+### B. Salida JSON Estructurada (Para Nodos Condicionales en Gumloop)
 
 ```json
 {
   "audit_passed": true,
   "exit_code": 0,
-  "metrics_audited": 14,
-  "violations_found": 0,
-  "corrections": [],
-  "marp_syntax_valid": true,
-  "speaker_notes_complete": true
+  "verdict": "CERTIFIED",
+  "epistemic_score": 1.0,
+  "checks": {
+    "provenance_and_citations": { "passed": true, "violations": [] },
+    "numerical_accuracy": { "passed": true, "violations": [] },
+    "causality_boundaries": { "passed": true, "violations": [] },
+    "marp_line_budget": { "passed": true, "max_lines_observed": 14, "limit": 18 },
+    "speaker_notes_complete": { "passed": true, "coverage_percent": 100 }
+  },
+  "corrections_applied_count": 2
 }
 ```
 
 ---
 
-## 🤖 4. Uso en Gumloop y Pipelines DAG
+## 🤖 4. Integración en el Pipeline DAG de Gumloop
 
-En un flujo de Gumloop, este nodo se coloca como compuerta final entre el generador de presentaciones (`presentation-deck-architect`) y la entrega al usuario:
-- **Entrada 1 (`source_data`):** La síntesis de `academic-literature-grounding`.
-- **Entrada 2 (`generated_slides`):** El código Markdown de `presentation-deck-architect`.
-- **Comportamiento:** Si `audit_passed == true`, se entrega la presentación final lista para proyectar. Si es `false`, el flujo puede reinyectar las correcciones sugeridas para un ajuste inmediato.
+En el flujo `academic_research_pipeline.json`, este nodo se ubica al final:
+- **Entrada 1 (`source_data`):** La síntesis estructurada de `academic-literature-grounding`.
+- **Entrada 2 (`generated_slides`):** Las diapositivas generadas por `presentation-deck-architect`.
+- **Salidas Emitidas:**
+  - `final_certified_slides`: El código Marp listo para descargar o proyectar.
+  - `audit_report`: El informe legible para el usuario.
+  - `json_verdict`: El objeto JSON para validación programática.

@@ -3,30 +3,58 @@
  * 
  * Propósito:
  * Permite probar localmente la extracción de arXiv sin costo de tokens,
- * generando resúmenes en Markdown y citas BibTeX válidas.
+ * generando resúmenes en Markdown y citas BibTeX normalizadas.
  * Compatible con Node.js >= 18.
+ * 
+ * Entradas:
+ * - query (string): Término de búsqueda o ID de arXiv.
+ * - maxResults (number): Cantidad máxima de artículos (por defecto 3).
+ * 
+ * Salidas conformes al contrato DAG de Gumloop:
+ * - papers_markdown (string): Resumen estructurado listo para inyectar al agente.
+ * - raw_json (string): JSON canónico de los artículos.
+ * - bibtex (string): Bloque de citaciones BibTeX normalizadas.
  */
 
 const https = require('https');
 
-function generateBibtex(paper) {
-  const firstAuthor = (paper.authors && paper.authors.length > 0)
-    ? paper.authors[0].split(/\s+/).pop().replace(/[^a-zA-Z]/g, '').toLowerCase()
-    : 'anon';
-  
-  const year = paper.year || '2026';
-  const cleanTitleWords = (paper.title || '')
+function cleanAsciiSlug(str, fallback = 'paper') {
+  if (!str) return fallback;
+  const normalized = str
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
     .replace(/[^a-zA-Z0-9\s]/g, '')
-    .split(/\s+/)
-    .filter(w => w.length > 3);
-  const slug = (cleanTitleWords[0] || 'paper').toLowerCase();
+    .trim();
+  const words = normalized.split(/\s+/).filter(w => w.length > 2);
+  const slug = (words[0] || '').toLowerCase();
+  return slug || fallback;
+}
+
+function cleanAuthorLastname(authorName, fallback = 'author') {
+  if (!authorName) return fallback;
+  const parts = authorName.trim().split(/\s+/);
+  const rawLast = parts[parts.length - 1] || '';
+  const normalized = rawLast
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-zA-Z0-9]/g, '')
+    .toLowerCase();
+  return normalized || fallback;
+}
+
+function generateBibtex(paper) {
+  const firstAuthorName = (paper.authors && paper.authors.length > 0) ? paper.authors[0] : '';
+  const firstAuthor = cleanAuthorLastname(firstAuthorName, 'autor');
+  const year = paper.year || '2026';
+  const slug = cleanAsciiSlug(paper.title, 'paper');
   const citeKey = `${firstAuthor}_${year}_${slug}`;
+
   const authorsStr = (paper.authors && paper.authors.length > 0)
     ? paper.authors.join(' and ')
     : 'Anónimo';
   const arxivIdClean = (paper.id || '').split('/').pop();
 
-  let lines = [
+  const lines = [
     `@article{${citeKey},`,
     `  title     = {${paper.title || 'Sin título'}},`,
     `  author    = {${authorsStr}},`,
@@ -52,7 +80,9 @@ function fetchArxiv(query, maxResults = 3) {
         error: 'La consulta no puede estar vacía.',
         count: 0,
         papers: [],
+        papers_markdown: 'Por favor proporciona una consulta válida.',
         markdown: 'Por favor proporciona una consulta válida.',
+        raw_json: '[]',
         bibtex: ''
       });
     }
@@ -63,7 +93,7 @@ function fetchArxiv(query, maxResults = 3) {
 
     const options = {
       headers: {
-        'User-Agent': 'Gumloop-Academic-Fetcher/2.0 (open academic workflow; Node.js)'
+        'User-Agent': 'Gumloop-Academic-Fetcher/2.1 (open academic workflow; Node.js)'
       }
     };
 
@@ -132,12 +162,17 @@ function fetchArxiv(query, maxResults = 3) {
             markdownLines.push(`- **Resumen:** ${summary.slice(0, 420)}...\n`);
           }
 
+          const markdownText = markdownLines.join('\n');
+          const bibtexText = bibtexEntries.join('\n\n');
+
           resolve({
             success: true,
             count: papers.length,
             papers,
-            markdown: markdownLines.join('\n'),
-            bibtex: bibtexEntries.join('\n\n')
+            papers_markdown: markdownText,
+            raw_json: JSON.stringify(papers, null, 2),
+            bibtex: bibtexText,
+            markdown: markdownText // compatibilidad hacia atrás
           });
         } catch (parseErr) {
           reject(new Error(`Fallo procesando XML de arXiv: ${parseErr.message}`));
@@ -149,17 +184,23 @@ function fetchArxiv(query, maxResults = 3) {
         error: `Error de red consultando arXiv: ${err.message}`,
         count: 0,
         papers: [],
-        markdown: `No se pudo conectar a arXiv (${err.message})`,
-        bibtex: ''
+        papers_markdown: `No se pudo conectar a arXiv (${err.message})`,
+        raw_json: '[]',
+        bibtex: '',
+        markdown: `No se pudo conectar a arXiv (${err.message})`
       });
     });
   });
 }
 
+async function main(query, maxResults = 3) {
+  return await fetchArxiv(query, maxResults);
+}
+
 if (require.main === module) {
   fetchArxiv('deterministic agentic governance', 2).then(res => {
     console.log(`\n=== Se recuperaron ${res.count} artículos de arXiv ===\n`);
-    console.log(res.markdown);
+    console.log(res.papers_markdown);
     console.log('\n--- CITAS BIBTEX ---\n');
     console.log(res.bibtex);
   }).catch(err => {
@@ -167,4 +208,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { fetchArxiv, generateBibtex };
+module.exports = { fetchArxiv, generateBibtex, main, cleanAsciiSlug, cleanAuthorLastname };

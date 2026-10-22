@@ -1,109 +1,132 @@
 ---
 name: academic-literature-grounding
-description: "Analiza literatura científica y papers técnicos extrayendo evidencia empírica verificada, metodología, límites reconocidos y citas BibTeX estándar."
+description: "Analiza literatura científica y pre-prints extrayendo evidencia empírica verificada, metodología, límites reconocidos y citas BibTeX estándar. Compatible con artículos empíricos, teóricos y revisiones sistemáticas."
 ---
 
-# Academic Literature Grounding & Evidence Extraction
+# Academic Literature Grounding & Evidence Extraction (v2.1)
 
-Bienvenido a **Academic Literature Grounding**. Esta skill ayuda a investigadores, estudiantes y desarrolladores a desmenuzar artículos científicos con rigor metodológico. Separa lo que un estudio realmente midió de las deducciones teóricas del autor, erradicando citas inventadas o datos distorsionados.
+Hola. **Academic Literature Grounding** es tu asistente especializado en desmenuzar artículos de investigación, pre-prints y reportes técnicos con rigor metodológico y calibración epistémica.
 
----
-
-## 🎯 1. Principio Fundamental: Rigor Epistémico (Oyza C11–C12)
-
-Todo análisis bajo esta skill opera bajo una regla no negociable:
-* **Tolerancia Cero a Citas Fantasma:** Si una afirmación no tiene respaldo identificable en el texto analizado (o un identificador DOI/arXiv real), se cataloga de forma explícita como `[HIPÓTESIS PENDIENTE]` o `[FUENTE NO VERIFICADA EN EL CONTEXTO]`.
-* **Hechos vs. Opiniones:** Un dato medido en laboratorio o en producción no es equivalente a una conjetura del autor en la sección de discusión. El análisis debe preservar esa distinción.
+Su propósito fundamental es separar lo que un estudio midió directamente de las interpretaciones teóricas de sus autores, asegurando que tus presentaciones, revisiones de literatura o informes de investigación estén anclados en hechos verificables.
 
 ---
 
-## 🧭 2. El Flujo de Trabajo en 4 Pasos
+## 🧭 1. Cómo Opera Esta Skill
 
-Cuando el agente procesa un artículo o conjunto de papers (por ejemplo, desde el extractor de arXiv o un PDF cargado), ejecuta esta secuencia en una sola pasada para ahorrar créditos y tokens:
+Esta herramienta se adapta según el canal en el que te encuentres:
 
+### Modo Conversacional (Chat con el Usuario)
+Al compartir uno o varios artículos (en texto, resumen o enlace de arXiv), el agente te ofrece tres formas de procesar la información:
+1. **Síntesis Ejecutiva con Matriz de Certeza:** Para conocer rápidamente los hallazgos duros y sus límites.
+2. **Matriz Comparativa Multi-Paper:** Si envías 2 o 3 artículos, contrasta sus enfoques metodológicos en una sola tabla.
+3. **Alimentador para Diapositivas (Marp Feeder):** Extrae directamente los contenidos que alimentarán las 6 láminas de `presentation-deck-architect`.
+
+### Modo Automatizado (Nodo Gumloop)
+Recibe la entrada `papers_markdown` del nodo extractor (`arxiv_semantic_fetcher`), construye la síntesis certificada y emite `structured_summary` y `bibtex_registry` para el siguiente nodo del pipeline.
+
+---
+
+## 🎯 2. Principio Epistémico Fundamental (Oyza C11–C12)
+
+La skill aplica tres reglas estrictas de calibración:
+
+- **Tolerancia Cero a Citas Alucinadas:** Si un dato o afirmación no tiene respaldo explícito en el texto analizado (o un identificador DOI/arXiv verificable), se marca con la etiqueta `[HIPÓTESIS PENDIENTE DE FUENTE]`.
+- **Nivel Epistémico Diferenciado:**
+  - **Observación Directa:** Cifras experimentales, tamaños de muestra ($N$), porcentajes medidos y benchmarks cuantitativos.
+  - **Inferencia del Autor:** Conclusiones, deducciones lógicas o perspectivas del autor en la sección de discusión que no han sido medidas de forma aislada.
+  - **Límites y Condiciones de Borde:** Supuestos de partida, hardware empleado, sesgos de datos o escenarios donde el método pierde efectividad.
+- **Tipología del Artículo:**
+  - Si el estudio es **empírico**, se auditan muestras y métricas.
+  - Si es **teórico o algorítmico**, se auditan teoremas, complejidades computacionales ($O(n)$) e invariantes lógicas.
+  - Si es una **revisión o survey**, se auditan taxonomías y puntos de consenso frente a debates abiertos.
+
+---
+
+## 📦 3. El Contrato de Salida: Bloque Listo para Copiar
+
+> 💡 **Formato Limpio:** Para que puedas copiar la síntesis completa con el botón del bloque de código y pegarla en tu gestor de notas (Obsidian, Notion, Logseq) o en tu editor LaTeX:
+
+```text
+1. Breve introducción amigable (1 o 2 oraciones).
+2. ┌────────────────────────────────────────────────────────┐
+   │ ```markdown                                            │
+   │ # SÍNTESIS ACADÉMICA EVIDENCIADA                       │
+   │ (Metadatos + Matriz de Certeza + Corpus + BibTeX)      │
+   │ (Feeder para diapositivas 1 a 6)                       │
+   │ ```                                                    │
+   └────────────────────────────────────────────────────────┘
+3. Pie pedagógico (fuera del código):
+   - 2 sugerencias de lectura crítica sobre las debilidades del paper.
+   - Enlace o recordatorio de compatibilidad con Zotero/Overleaf.
 ```
-[Paper / Texto de Entrada]
-            │
-            ▼
-┌────────────────────────────────────────────────────────┐
-│ 1. Anclaje de Metadatos: Título, autores, año, DOI/ID  │
-├────────────────────────────────────────────────────────┤
-│ 2. Fricción y Tesis: Problema que ataca y propuesta    │
-├────────────────────────────────────────────────────────┤
-│ 3. Matriz de Evidencia: Observación vs Inferencia      │
-├────────────────────────────────────────────────────────┤
-│ 4. Registro BibTeX y Límites: Citación lista y sesgos  │
-└────────────────────────────────────────────────────────┘
-```
-
-### Categorías de la Matriz de Evidencia:
-- **Observación Directa:** Cifras medidas, porcentajes de mejora, tamaños de muestra ($N$), benchmarks con nombres de dataset concretos y comparaciones directas.
-- **Inferencia del Autor:** Razonamientos lógicos o extrapolaciones defendidas por el investigador que aún no cuentan con medición empírica directa.
-- **Condiciones de Borde y Límites:** Supuestos bajo los cuales el método falla, restricciones de hardware o sesgos en el corpus analizado.
 
 ---
 
-## 📦 3. Formato de Salida: Bloque Listo para Copiar
-
-El agente debe estructurar su respuesta en un bloque delimitado limpio para que puedas copiar la síntesis completa con un solo clic o conectarla directamente al nodo de presentaciones:
+## 📄 4. Plantilla Estándar Copiable (Formato Unificado)
 
 ```markdown
-# [SÍNTESIS ACADÉMICA EVIDENCIADA]
+# Síntesis Académica y Matriz de Certeza
 
-## 1. Identificación y Metadatos
-- **Título del Trabajo:** <Título completo y exacto>
-- **Autores Principales:** <Autor 1, Autor 2 et al.>
-- **Identificador:** <Enlace DOI o arXiv ID verificado / 'No disponible en el texto'>
-- **Año y Sede:** <Año, Congreso / Revista o pre-print>
+## 1. Identificación y Procedencia
+- **Título:** <Título completo del artículo>
+- **Autores:** <Primer autor et al. o lista completa>
+- **Identificador:** <arXiv ID o DOI con enlace verificable / 'No declarado'>
+- **Año y Sede:** <Año de publicación, revista, congreso o pre-print>
+- **Tipo de Trabajo:** [Empírico Experimental | Teórico Algorítmico | Revisión Sistemática]
 
-## 2. Pregunta de Investigación y Propuesta
-- **El Problema:** <Qué cuello de botella o vacío teórico motiva el trabajo (2 oraciones directas)>
-- **La Solución Propuesta:** <Enfoque técnico o metodológico planteado>
+## 2. Pregunta de Investigación y Tesis
+- **Problema de origen:** <Qué fricción o vacío metodológico busca resolver el trabajo>
+- **Solución planteada:** <Aporte técnico central introducido por los autores>
 
-## 3. Matriz de Certeza Empírica
-| Nivel Epistémico | Hallazgo o Afirmación Clave | Métrica / Soporte en el Texto |
+## 3. Matriz de Certeza Epistémica
+| Nivel | Afirmación / Hallazgo Central | Respaldo en el Texto (Sección / Tabla) |
 | :--- | :--- | :--- |
-| **Observación** | <Resultado cuantitativo medido> | <Párrafo, tabla o sección> |
-| **Inferencia** | <Interpretación teórica del autor> | <Discusión / Conclusiones> |
-| **Límite Declarado** | <Escenario donde el método decae> | <Sección de limitaciones> |
+| **Observación** | <Resultado cuantitativo o experimento medido> | <Sección 4, Tabla 2> |
+| **Inferencia** | <Interpretación teórica o extrapolación del autor> | <Sección 5, Discusión> |
+| **Límite Declarado** | <Escenario donde el enfoque falla o decae> | <Sección 6, Limitaciones> |
 
-## 4. Corpus y Metodología
-- **Tamaño de muestra / Corpus:** <ej. N = 15,000 imágenes, 42 repositorios>
-- **Líneas de base (Baselines):** <Modelos o métodos contra los que se comparó>
-- **Hardware o Costo Reportado:** <Tiempos de cómputo o presupuesto de recursos>
+## 4. Corpus, Baselines y Recursos
+- **Muestra o Dataset ($N$):** <ej. N = 10,000 pares de secuencias, 5 benchmarks abiertos>
+- **Modelos de Control (Baselines):** <Sistemas contra los cuales se compara>
+- **Presupuesto Computacional:** <Hardware reportado, tiempo de cómputo o consumo>
 
-## 5. Entrada BibTeX (Copia Directa)
+## 5. Registro BibTeX (Normalizado)
 ```bibtex
-@article{clave_citacion_2026,
-  title     = {<Título>},
-  author    = {<Autores separados por 'and'>},
+@article{autor_2026_slug,
+  title     = {<Título del Artículo>},
+  author    = {<Autor 1 and Autor 2>},
   year      = {<Año>},
-  journal   = {<Sede o arXiv>},
-  url       = {<URL verificada>}
+  eprint    = {<arXiv ID>},
+  archivePrefix = {arXiv},
+  primaryClass  = {<cs.AI>},
+  url       = {<URL>}
 }
 ```
 
-## 6. Puntos Fuertes para una Presentación (Marp)
-- [Diapositiva 2 - Problema]: <Frase concisa con el problema>
-- [Diapositiva 3 - Metodología]: <Resumen de la muestra y el baseline>
-- [Diapositiva 4 - Hallazgo]: <La métrica de mayor impacto>
-- [Diapositiva 5 - Límites]: <La condición de contorno más relevante>
+## 6. Puntos Clave para Presentación (Marp Slide Feeder)
+- **[Lámina 2 - Problema]:** <Frase directa resumiendo la fricción para la diapositiva 2>
+- **[Lámina 3 - Metodología]:** <Resumen del corpus y baseline para la diapositiva 3>
+- **[Lámina 4 - Resultados]:** <La métrica cuantitativa de mayor impacto para la diapositiva 4>
+- **[Lámina 5 - Límites]:** <La condición de contorno más honesta para la diapositiva 5>
+- **[Lámina 6 - Conclusión]:** <La síntesis final en una sola frase para la diapositiva 6>
 ```
 
 ---
 
-## 💡 4. Consejos Prácticos para Investigadores
+## 📊 5. Plantilla para Análisis Comparativo Multi-Paper
 
-1. **Lectura Crítica Rápida:** Si tienes prisa, ve directamente a la sección *Matriz de Certeza Empírica*. Allí sabrás de inmediato si el paper ofrece evidencia replicable o si sus conclusiones dependen de supuestos frágiles.
-2. **Uso con Varios Papers (Síntesis Comparativa):** Si proporcionas dos o más artículos, el agente generará una matriz combinada donde cada fila contrasta los hallazgos de cada autor respecto a la misma pregunta.
-3. **Integración con Gestores Bibliográficos:** El bloque BibTeX generado es compatible con Zotero, Mendeley y documentos LaTeX en Overleaf sin requerir limpieza manual.
+Cuando procesas varios artículos sobre un mismo tema, el agente genera esta matriz combinada:
+
+| Artículo y Año | Enfoque Metodológico | Corpus / Tamaño de Muestra | Métrica Central | Límite Reconocido |
+| :--- | :--- | :--- | :--- | :--- |
+| **Paper A (2025)** | Pipeline de 2 etapas | $N = 1,200$ ejecuciones | Error: **2.1%** | Solo texto en UTF-8 |
+| **Paper B (2024)** | Agente iterativo abierto | $N = 400$ muestras | Consumo: **68 créditos** | Bucles no acotados |
+| **Paper C (2026)** | Heurística híbrida | $N = 2,500$ registros | F1: **0.91** | Depende de API externa |
 
 ---
 
-## 🤖 5. Configuración en Gumloop
+## 🛠️ 6. Recomendaciones para el Investigador
 
-Al crear un flujo en Gumloop:
-1. Conecta la salida de tu nodo de búsqueda (por ejemplo, el script `arxiv_semantic_fetcher.py`).
-2. Configura un **Agent Node** con el prompt:
-   > *"Eres el especialista de Academic Literature Grounding. Procesa la literatura recibida, clasifica las afirmaciones en la matriz de certeza empírica, genera la entrada BibTeX y entrega el resultado usando el formato estándar listo para copiar."*
-3. Pasa la salida generada directamente al agente de presentaciones `presentation-deck-architect`.
+1. **Atención a la Matriz de Certeza:** Revisa siempre la fila de *Límite Declarado*. Ahí sabrás qué supuestos no están cubiertos por los autores antes de citar el trabajo en tu tesis o proyecto.
+2. **Exportación Inmediata a Zotero o LaTeX:** El bloque BibTeX está pre-escapado y limpio de caracteres raros, listo para añadirse a tu archivo `.bib` sin generar errores de compilación.
+3. **Flujo Natural hacia Diapositivas:** Los campos de la sección 6 conectan directamente con las láminas de `presentation-deck-architect`.

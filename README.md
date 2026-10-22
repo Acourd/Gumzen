@@ -1,52 +1,83 @@
-# Gumloop Academic & Presentation Agent Suite
+# Gumloop Academic & Presentation Agent Suite (v2.1)
 
-Bienvenido a la **Suite Académica y de Presentaciones para Gumloop**. Este proyecto reúne agentes modulares, scripts ligeros y plantillas de diapositivas diseñados para investigar artículos científicos, extraer evidencia verificada y compilar presentaciones profesionales en **Marp Markdown**, cuidando al máximo el consumo de créditos.
+Hola. Bienvenido a la **Suite Académica y de Presentaciones para Gumloop**. 
 
-Todo el material es abierto, transparente y utilizable tanto dentro de la plataforma **Gumloop** como de forma independiente en tu editor local (**VS Code + Marp**).
+Este repositorio reúne tres agentes especializados, scripts ligeros y plantillas de diapositivas en **Marp Markdown** pensados para investigar artículos científicos, extraer evidencia verificada y compilar presentaciones claras y profesionales, cuidando al máximo el consumo de créditos.
+
+Todo el contenido es de código abierto, transparente y está pensado para utilizarse tanto en la nube de **Gumloop** como en tu editor local (**VS Code + Marp**).
 
 ---
 
 ## ⚡ 1. Inicio Rápido (En 3 Pasos)
 
-No necesitas configurar sistemas complejos para empezar a aprovechar estas herramientas:
+Puedes empezar a trabajar hoy mismo sin necesidad de configuraciones complicadas:
 
-### Opción A: Uso Local (Sin Gumloop, 100% Gratuito)
-1. **Recupera artículos de arXiv:**  
-   Ejecuta el extractor local con Node.js (cero dependencias):
+### Opción A: Uso Local (100% Gratuito y sin Servidores)
+1. **Recupera artículos de investigación de arXiv:**  
+   Ejecuta el extractor ligero con Node.js (cero dependencias externas):
    ```bash
    node workflows/custom_nodes/arxiv_semantic_fetcher.cjs
    ```
 2. **Genera tus diapositivas:**  
-   Copia el resumen o tu propio texto y usa la plantilla de [`skills/presentation-deck-architect/SKILL.md`](skills/presentation-deck-architect/SKILL.md) en cualquier modelo o editor.
+   Copia el resumen obtenido y abre la plantilla de [`skills/presentation-deck-architect/SKILL.md`](skills/presentation-deck-architect/SKILL.md) en tu editor favorito.
 3. **Previsualiza y exporta a PDF:**  
-   Instala la extensión **Marp for VS Code** o compila desde la terminal:
+   Instala la extensión **Marp for VS Code** o compila directamente desde tu terminal:
    ```bash
    npx @marp-team/marp-cli presentacion.md --pdf
    ```
 
-### Opción B: Despliegue en Gumloop (Pipeline DAG)
-1. Inicia sesión en [Gumloop.com](https://www.gumloop.com).
-2. Crea un nuevo flujo e importa el blueprint [`workflows/academic_research_pipeline.json`](workflows/academic_research_pipeline.json).
-3. Conecta el script de Python en el nodo de código y las instrucciones de `skills/` en los nodos de agente.
-4. Ejecuta el pipeline: el flujo completo consume entre **3 y 5 créditos**.
+### Opción B: Despliegue en Gumloop (Flujo DAG Automatizado)
+1. Inicia sesión en tu cuenta de [Gumloop.com](https://www.gumloop.com).
+2. Crea un nuevo flujo e importa el archivo [`workflows/academic_research_pipeline.json`](workflows/academic_research_pipeline.json).
+3. Conecta el script de Python en el nodo custom y las directivas de `skills/` en los tres nodos de agente.
+4. Ejecuta el pipeline: el recorrido completo consume entre **3 y 5 créditos**.
 
 ---
 
-## 🧭 2. ¿Por Qué Nace Esta Suite?
+## 💬 2. La Experiencia Interactiva y el Formato "Copy-Ready"
 
-Al construir flujos de investigación asistidos por inteligencia artificial suelen aparecer dos problemas habituales:
+Cuando converses con un agente equipado con estas skills, notarás un diseño pensado para eliminar fricciones:
 
-1. **Gasto desmedido de créditos:** Un agente autónomo al que se le pide *"investiga en internet y hazme unas diapositivas"* suele entrar en bucles de navegación iterativos, consumiendo entre 40 y 100 créditos por ejecución. Esta suite implementa un **pipeline acotado en dos fases** con presupuesto controlado.
-2. **Alucinación de citas y cifras:** Es frecuente que los modelos inventen referencias o magnifiquen porcentajes. Esta suite incorpora principios de calibración epistémica (**Protocolo Oyza C11–C16**): toda cifra debe tener respaldo directo en el texto de origen; de lo contrario, se cataloga como hipótesis abierta antes de llegar a la presentación.
+```text
+Usuario: "Tengo este borrador de paper sobre agentes autónomos. ¿Me preparas una presentación de 6 láminas?"
+
+Agente:  "Con gusto. Preparé una estructura de 6 láminas en tema oscuro panorámico (16:9),
+         con notas de orador y presupuesto de texto para evitar desbordamientos:
+
+         ┌────────────────────────────────────────────────────────┐
+         │ ```markdown                                            │
+         │ ---                                                    │
+         │ marp: true                                             │
+         │ size: 16:9                                             │
+         │ ...                                                    │
+         │ ```                                                    │
+         └────────────────────────────────────────────────────────┘
+         
+         💡 Consejos para tu exposición:
+         - Tiempo estimado total: 7 minutos.
+         - En la lámina 3, subraya el contraste del baseline antes de pasar a la métrica.
+         - Para exportar a PDF: npx @marp-team/marp-cli presentacion.md --pdf"
+```
+
+> 🎯 **El botón de copiar hace lo que esperas:** Al pulsar el botón de copiar del bloque de código, obtienes **únicamente** el código fuente de las diapositivas. Sin saludos de chatbot, sin firmas personales y sin enlaces de contacto que tengas que borrar a mano.
 
 ---
 
-## 🗂️ 3. Estructura del Proyecto
+## 🧭 3. ¿Por Qué Nace Este Proyecto?
+
+Al trabajar con modelos de lenguaje aplicados a la investigación académica suelen surgir dos cuellos de botella:
+
+1. **Gasto descontrolado de créditos:** Un agente al que se le dice *"investiga en la web y diseña una presentación"* entra con frecuencia en bucles de navegación sin rumbo, consumiendo entre 40 y 100 créditos por corrida. Esta suite resuelve ese problema mediante un **pipeline acotado en dos etapas** con costo fijo.
+2. **Citas y cifras alucinadas:** Los modelos tienden a inflar porcentajes o inventar identificadores DOI inexistentes. Esta suite incorpora principios de calibración epistémica (**Protocolo Oyza C11–C16**): toda afirmación debe rastrearse a una sección concreta de la fuente analizada; de lo contrario, se cataloga como hipótesis abierta antes de llegar a la lámina final.
+
+---
+
+## 🗂️ 4. Estructura del Repositorio
 
 ```text
 Gumloop/
 ├── LICENSE                             <- Licencia abierta MIT
-├── ATTRIBUTION.md                      <- Reconocimiento de fuentes e inspiraciones
+├── ATTRIBUTION.md                      <- Reconocimiento transparente de fuentes e inspiraciones
 ├── README.md                           <- Guía amigable de uso y bienvenida
 │
 ├── core/
@@ -66,19 +97,18 @@ Gumloop/
 │       ├── arxiv_semantic_fetcher.py   <- Para el nodo Python en la nube de Gumloop
 │       └── arxiv_semantic_fetcher.cjs  <- Para pruebas y uso local con Node.js
 │
-├── tests/                              <- Pruebas automatizadas de integridad
-│   └── suite_runner.cjs
+├── tests/                              <- Pruebas automatizadas de integridad física
+│   ├── suite_runner.cjs
+│   └── test_humanize_and_marp.cjs
 │
 └── docs/
-    ├── GUMLOOP_AGENT_ENGINEERING.md    <- Arquitectura, créditos y comparativa
+    ├── GUMLOOP_AGENT_ENGINEERING.md    <- Arquitectura, créditos y comparativa con otros frameworks
     └── NAMING_AND_ECOSYSTEM_SURVEY.md  <- Opciones de nomenclatura para GitHub
 ```
 
 ---
 
-## 🛠️ 4. Las Tres Skills Académicas
-
-Cada skill está diseñada con un bloque de **Copiado Rápido** limpio, sin firmas personales invasivas ni enlaces de autopromoción:
+## 🛠️ 5. Resumen de las Tres Skills Académicas
 
 | Skill | Qué Entrada Recibe | Qué Entrega al Usuario |
 | :--- | :--- | :--- |
@@ -88,22 +118,22 @@ Cada skill está diseñada con un bloque de **Copiado Rápido** limpio, sin firm
 
 ---
 
-## 💰 5. Tabla de Rendimiento y Costo en Gumloop
+## 💰 6. Comparativa de Rendimiento y Consumo en Gumloop
 
-| Paradigma | Pasos de Razonamiento | Riesgo de Alucinación | Consumo Estimado |
+| Paradigma de Agente | Pasos de Razonamiento | Riesgo de Citas Fantasma | Consumo Estimado |
 | :--- | :---: | :---: | :---: |
-| **Agente Abierto Tradicional** | 12 a 25 iteraciones | Alto (citas inventadas sin auditar) | 40 a 100 créditos |
+| **Bucle Agéntico Abierto** | 12 a 25 iteraciones | Alto (citas no verificadas) | 40 a 100 créditos |
 | **Pipeline Acotado en 2 Fases (Esta Suite)** | 3 nodos determinados | 0% en datos auditados (Oyza Gate) | **3 a 5 créditos** |
 
 ---
 
-## 🤝 6. Licencia y Atribución
+## 🤝 7. Licencia y Reconocimiento Comunitario
 
-Este repositorio está disponible bajo la [Licencia MIT](LICENSE). 
+Este proyecto es software libre distribuido bajo los términos de la [Licencia MIT](LICENSE).
 
-Agradecemos a los proyectos que sirvieron de inspiración para esta entrega:
-* Al ecosistema [Marp](https://marp.app) y a **robonuggets** por los patrones de diseño en presentaciones Markdown.
-* A **ngtiendong** por los flujos de desconstrucción de papers y prompt engineering para investigación.
-* A la suite **Axkern** y al protocolo **Oyza C1–C16** por el marco de gobernanza determinista y calibración epistémica.
+Reconocemos con gratitud a las comunidades y proyectos abiertos que sirvieron como cimientos:
+- A la comunidad de [Marp](https://marp.app) y a **robonuggets** por sus patrones de diseño para presentaciones técnicas en Markdown.
+- A **ngtiendong** por sus investigaciones sobre desconstrucción de literatura científica y prompt engineering.
+- Al ecosistema **Axkern** y al protocolo **Oyza C1–C16** por las pautas de certeza epistémica y control estricto de recursos.
 
-Consulta [`ATTRIBUTION.md`](ATTRIBUTION.md) para conocer la historia completa y el desglose de componentes originales desarrollados aquí. ¡Las contribuciones y sugerencias son bienvenidas!
+Consulta [`ATTRIBUTION.md`](ATTRIBUTION.md) para conocer el desglose detallado de autoría y las innovaciones originales introducidas en este trabajo. Si encuentras formas de mejorar estas herramientas, los aportes y sugerencias de la comunidad son bienvenidos.

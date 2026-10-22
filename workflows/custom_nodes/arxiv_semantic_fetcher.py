@@ -9,10 +9,10 @@ Entradas de Gumloop:
 - query (string): Término de búsqueda o identificador (ej: 'cs.AI' o 'transformer architecture')
 - max_results (int): Número máximo de artículos (por defecto 3)
 
-Salidas de Gumloop:
+Salidas de Gumloop (Contrato DAG 2.0):
 - papers_markdown (string): Bloque Markdown estructurado y listo para inyectar al agente de análisis
 - raw_json (string): JSON canónico para almacenamiento o nodos posteriores
-- bibtex (string): Bloque con todas las entradas BibTeX listas para exportar
+- bibtex (string): Bloque con todas las entradas BibTeX normalizadas y listas para exportar
 """
 
 import urllib.request
@@ -20,18 +20,36 @@ import urllib.parse
 import xml.etree.ElementTree as ET
 import json
 import re
+import unicodedata
 from typing import Dict, Any, List
 
+def clean_ascii_slug(text: str, fallback: str = "paper") -> str:
+    """Extrae un slug seguro en ASCII a partir de un título."""
+    if not text:
+        return fallback
+    normalized = unicodedata.normalize('NFKD', text)
+    ascii_str = normalized.encode('ascii', 'ignore').decode('ascii')
+    clean = re.sub(r'[^a-zA-Z0-9\s]', '', ascii_str).strip()
+    words = [w for w in clean.split() if len(w) > 2]
+    return words[0].lower() if words else fallback
+
+def clean_author_lastname(author_name: str, fallback: str = "autor") -> str:
+    """Extrae el apellido del autor limpio en ASCII."""
+    if not author_name:
+        return fallback
+    parts = author_name.strip().split()
+    raw_last = parts[-1] if parts else ""
+    normalized = unicodedata.normalize('NFKD', raw_last)
+    ascii_str = normalized.encode('ascii', 'ignore').decode('ascii')
+    cleaned = re.sub(r'[^a-zA-Z0-9]', '', ascii_str).lower()
+    return cleaned if cleaned else fallback
+
 def generate_bibtex_entry(paper: Dict[str, Any]) -> str:
-    """Genera una entrada BibTeX estándar para un artículo."""
-    # Clave de citación: primer autor + año + primera palabra relevante del título
-    first_author = "anon"
-    if paper.get("authors") and len(paper["authors"]) > 0:
-        first_author = re.sub(r'[^a-zA-Z]', '', paper["authors"][0].split()[-1].lower())
-    
-    year = paper.get("year", "2026")
-    title_words = [w for w in re.sub(r'[^a-zA-Z0-9\s]', '', paper.get("title", "")).split() if len(w) > 3]
-    slug = title_words[0].lower() if title_words else "paper"
+    """Genera una entrada BibTeX estándar y sanitizada para un artículo."""
+    first_author_name = paper["authors"][0] if (paper.get("authors") and len(paper["authors"]) > 0) else ""
+    first_author = clean_author_lastname(first_author_name, "autor")
+    year = str(paper.get("year", "2026"))
+    slug = clean_ascii_slug(paper.get("title", ""), "paper")
     
     cite_key = f"{first_author}_{year}_{slug}"
     authors_str = " and ".join(paper.get("authors", ["Anónimo"]))
@@ -54,14 +72,16 @@ def generate_bibtex_entry(paper: Dict[str, Any]) -> str:
 
 def fetch_arxiv_papers(query: str, max_results: int = 3) -> Dict[str, Any]:
     """Consulta la API de arXiv y procesa los resultados estructurados."""
-    clean_query = query.strip()
+    clean_query = (query or "").strip()
     if not clean_query:
         return {
             "success": False,
             "error": "La consulta de búsqueda no puede estar vacía.",
             "count": 0,
             "papers": [],
+            "papers_markdown": "Por favor especifica un tema de búsqueda válido.",
             "markdown": "Por favor especifica un tema de búsqueda válido.",
+            "raw_json": "[]",
             "bibtex": ""
         }
 
@@ -77,23 +97,26 @@ def fetch_arxiv_papers(query: str, max_results: int = 3) -> Dict[str, Any]:
     
     req = urllib.request.Request(
         url,
-        headers={"User-Agent": "Gumloop-Academic-Fetcher/2.0 (open academic workflow; contact: community)"}
+        headers={"User-Agent": "Gumloop-Academic-Fetcher/2.1 (open academic workflow; contact: community)"}
     )
     
     try:
         with urllib.request.urlopen(req, timeout=12) as response:
             xml_data = response.read().decode('utf-8')
     except Exception as e:
+        err_msg = f"No se pudieron recuperar artículos para '{query}'. Detalle técnico: {str(e)}"
         return {
             "success": False,
             "error": f"Error conectando con la API de arXiv: {str(e)}",
             "count": 0,
             "papers": [],
-            "markdown": f"No se pudieron recuperar artículos para '{query}'. Detalle técnico: {str(e)}",
+            "papers_markdown": err_msg,
+            "markdown": err_msg,
+            "raw_json": "[]",
             "bibtex": ""
         }
 
-    # Parseo del feed Atom
+    # Parseo del feed Atom con soporte para nodos mixtos itertext
     try:
         root = ET.fromstring(xml_data)
     except ET.ParseError as pe:
@@ -102,7 +125,9 @@ def fetch_arxiv_papers(query: str, max_results: int = 3) -> Dict[str, Any]:
             "error": f"Error al parsear respuesta XML de arXiv: {str(pe)}",
             "count": 0,
             "papers": [],
-            "markdown": "Respuesta no válida de arXiv.",
+            "papers_markdown": "Respuesta XML no válida de arXiv.",
+            "markdown": "Respuesta XML no válida de arXiv.",
+            "raw_json": "[]",
             "bibtex": ""
         }
 
@@ -117,10 +142,12 @@ def fetch_arxiv_papers(query: str, max_results: int = 3) -> Dict[str, Any]:
 
     for entry in root.findall('atom:entry', namespace):
         title_elem = entry.find('atom:title', namespace)
-        title = re.sub(r'\s+', ' ', title_elem.text).strip() if (title_elem is not None and title_elem.text) else "Sin título"
+        title_raw = "".join(title_elem.itertext()) if title_elem is not None else ""
+        title = re.sub(r'\s+', ' ', title_raw).strip() if title_raw else "Sin título"
         
         summary_elem = entry.find('atom:summary', namespace)
-        summary = re.sub(r'\s+', ' ', summary_elem.text).strip() if (summary_elem is not None and summary_elem.text) else "Sin resumen disponible"
+        summary_raw = "".join(summary_elem.itertext()) if summary_elem is not None else ""
+        summary = re.sub(r'\s+', ' ', summary_raw).strip() if summary_raw else "Sin resumen disponible"
         
         published_elem = entry.find('atom:published', namespace)
         published = published_elem.text.strip() if (published_elem is not None and published_elem.text) else ""
@@ -141,7 +168,6 @@ def fetch_arxiv_papers(query: str, max_results: int = 3) -> Dict[str, Any]:
             if name_elem is not None and name_elem.text:
                 authors.append(name_elem.text.strip())
         
-        # Enlaces (PDF y abstracto)
         pdf_link = ""
         for link in entry.findall('atom:link', namespace):
             if link.attrib.get('title') == 'pdf' or link.attrib.get('type') == 'application/pdf':
@@ -160,11 +186,9 @@ def fetch_arxiv_papers(query: str, max_results: int = 3) -> Dict[str, Any]:
         }
         papers.append(paper_info)
         
-        # Entrada BibTeX individual
         bib_entry = generate_bibtex_entry(paper_info)
         bibtex_entries.append(bib_entry)
         
-        # Formato Markdown amigable
         markdown_output.append(f"### 📄 {title} ({year})")
         author_display = ', '.join(authors[:4]) + (' et al.' if len(authors) > 4 else '')
         markdown_output.append(f"- **Autores:** {author_display if authors else 'No declarados'}")
@@ -176,16 +200,26 @@ def fetch_arxiv_papers(query: str, max_results: int = 3) -> Dict[str, Any]:
             markdown_output.append(f"- **Acceso PDF:** [Descargar documento completo]({pdf_link})")
         markdown_output.append(f"- **Síntesis del Resumen:** {summary[:420]}...\n")
 
+    markdown_final = "\n".join(markdown_output)
+    bibtex_final = "\n\n".join(bibtex_entries)
+    raw_json_str = json.dumps(papers, indent=2, ensure_ascii=False)
+
     return {
         "success": True,
         "count": len(papers),
         "papers": papers,
-        "markdown": "\n".join(markdown_output),
-        "bibtex": "\n\n".join(bibtex_entries)
+        "papers_markdown": markdown_final,
+        "raw_json": raw_json_str,
+        "bibtex": bibtex_final,
+        "markdown": markdown_final # compatibilidad hacia atrás
     }
 
+def main(query: str, max_results: int = 3) -> Dict[str, Any]:
+    """Punto de entrada estándar para el ejecutor de nodos Custom Python de Gumloop."""
+    return fetch_arxiv_papers(query=query, max_results=max_results)
+
 if __name__ == "__main__":
-    result = fetch_arxiv_papers("multi-agent governance architecture", max_results=2)
-    print(result["markdown"])
+    result = main("multi-agent governance architecture", max_results=2)
+    print(result["papers_markdown"])
     print("\n--- BIBTEX ---\n")
     print(result["bibtex"])
