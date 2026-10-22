@@ -1,0 +1,21 @@
+{
+  "name": "gumloop-academic-presentation-suite",
+  "version": "2.0.0",
+  "description": "Suite de agentes y flujos para investigación científica y diapositivas Marp en Gumloop con costo optimizado.",
+  "main": "workflows/custom_nodes/arxiv_semantic_fetcher.cjs",
+  "scripts": {
+    "test": "node tests/suite_runner.cjs && node tests/test_humanize_and_marp.cjs",
+    "fetch:arxiv": "node workflows/custom_nodes/arxiv_semantic_fetcher.cjs"
+  },
+  "keywords": [
+    "gumloop",
+    "marp",
+    "academic-research",
+    "arxiv",
+    "agentic-workflows",
+    "slides",
+    "epistemic-governance"
+  ],
+  "author": "Comunidad Abierta (Axkern / Gumloop Contributors)",
+  "license": "MIT"
+}

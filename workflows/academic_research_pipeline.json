@@ -1,0 +1,77 @@
+{
+  "name": "Academic Research & Marp Presentation Pipeline",
+  "version": "2.0.0",
+  "description": "Pipeline acotado de 2 fases para investigación científica, extracción de evidencia empírica y generación de presentaciones Marp en Gumloop con costo predecible de 3 a 5 créditos.",
+  "credit_cost_estimated": "3 a 5 créditos por ejecución",
+  "author": "Comunidad Abierta (Axkern / Gumloop Contributors)",
+  "license": "MIT",
+  "nodes": [
+    {
+      "id": "node_1_input",
+      "type": "input",
+      "title": "Tema o Enlace del Paper",
+      "description": "Recibe el término de búsqueda de arXiv o el texto/PDF de un artículo de investigación.",
+      "parameters": {
+        "research_topic": {
+          "type": "string",
+          "default": "deterministic agentic workflows",
+          "description": "Consulta o tema a investigar"
+        },
+        "max_papers": {
+          "type": "number",
+          "default": 3,
+          "description": "Número de artículos a recuperar"
+        }
+      },
+      "outputs": ["research_topic", "max_papers"]
+    },
+    {
+      "id": "node_2_python_fetcher",
+      "type": "custom_python",
+      "title": "ArXiv & Metadata Extractor (0 créditos LLM)",
+      "description": "Consulta la API de arXiv y extrae títulos, autores, resúmenes, enlaces a PDFs y citas BibTeX sin coste de tokens.",
+      "script_path": "workflows/custom_nodes/arxiv_semantic_fetcher.py",
+      "inputs": {
+        "query": "node_1_input.research_topic",
+        "max_results": "node_1_input.max_papers"
+      },
+      "outputs": ["papers_markdown", "raw_json", "bibtex"]
+    },
+    {
+      "id": "node_3_agent_grounding",
+      "type": "llm_agent",
+      "title": "Grounding & Evidence Extraction Agent",
+      "description": "Separa datos medidos de inferencias del autor y detecta limitaciones metodológicas.",
+      "skill_ref": "skills/academic-literature-grounding/SKILL.md",
+      "inputs": {
+        "context": "node_2_python_fetcher.papers_markdown",
+        "objective": "Construir la Matriz de Certeza Empírica y sintetizar los puntos clave para la presentación"
+      },
+      "outputs": ["structured_summary", "bibtex_registry"]
+    },
+    {
+      "id": "node_4_agent_marp",
+      "type": "llm_agent",
+      "title": "Presentation Deck Architect (Marp 16:9)",
+      "description": "Compila exactamente 5 a 6 diapositivas panorámicas con diseño sobrio y notas de orador integradas.",
+      "skill_ref": "skills/presentation-deck-architect/SKILL.md",
+      "inputs": {
+        "context": "node_3_agent_grounding.structured_summary",
+        "objective": "Generar bloque de copiado rápido en formato Marp Markdown (16:9) con notas de orador"
+      },
+      "outputs": ["marp_slides_markdown"]
+    },
+    {
+      "id": "node_5_audit_gate",
+      "type": "llm_agent",
+      "title": "Epistemic Fact Audit (Oyza C11-C16)",
+      "description": "Comprueba procedencia, precisión numérica, límites causales y presupuesto de líneas en Marp antes de la entrega.",
+      "skill_ref": "skills/fact-audit-and-certainty/SKILL.md",
+      "inputs": {
+        "source_data": "node_3_agent_grounding.structured_summary",
+        "generated_slides": "node_4_agent_marp.marp_slides_markdown"
+      },
+      "outputs": ["final_certified_slides", "audit_report", "json_verdict"]
+    }
+  ]
+}
