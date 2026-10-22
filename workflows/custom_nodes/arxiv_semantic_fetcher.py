@@ -200,7 +200,10 @@ def fetch_arxiv_papers(query: str, max_results: int = 3) -> Dict[str, Any]:
             markdown_output.append(f"- **Acceso PDF:** [Descargar documento completo]({pdf_link})")
         markdown_output.append(f"- **Síntesis del Resumen:** {summary[:420]}...\n")
 
-    markdown_final = "\n".join(markdown_output)
+    if not papers:
+        markdown_final = f"## 📚 Artículos Recuperados de arXiv para: *{clean_query}*\n\nNo se encontraron artículos para la búsqueda especificada."
+    else:
+        markdown_final = "\n".join(markdown_output)
     bibtex_final = "\n\n".join(bibtex_entries)
     raw_json_str = json.dumps(papers, indent=2, ensure_ascii=False)
 

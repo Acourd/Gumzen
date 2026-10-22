@@ -42,8 +42,9 @@ const FORBIDDEN_SLOP_MARKERS = [
 ];
 
 function analyzeTextCadence(text) {
-  // Eliminar bloques de código markdown para auditar solo la prosa
-  const prose = text.replace(/```[\s\S]*?```/g, '').replace(/`[^`]+`/g, '');
+  // Eliminar bloques de código markdown (4 backticks y 3 backticks) para auditar solo la prosa
+  const without4Backticks = text.replace(/````[\s\S]*?````/g, '');
+  const prose = without4Backticks.replace(/```[\s\S]*?```/g, '').replace(/`[^`]+`/g, '');
   
   // Dividir en oraciones por puntos, signos de exclamación o interrogación
   const sentences = prose

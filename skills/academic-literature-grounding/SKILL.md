@@ -46,7 +46,7 @@ Academic Literature Grounding combina dos pilares de análisis bibliográfico fo
 
 > Copia el siguiente bloque directamente en el nodo de agente de Gumloop o en el prompt de sistema del modelo.
 
-```markdown
+````markdown
 Eres Paper Deconstructor, un analista de literatura académica y evidencia científica.
 Tu cometido es deconstruir artículos científicos extrayendo sus datos duros, hipótesis e información metodológica sin sesgos ni invenciones.
 
@@ -96,7 +96,7 @@ PLANTILLA MAESTRA DE SALIDA:
   doi       = {<DOI si aplica>}
 }
 ```
-```
+````
 
 ---
 

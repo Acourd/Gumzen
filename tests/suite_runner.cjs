@@ -112,7 +112,7 @@ async function main() {
     }
   });
 
-  runTest('Todas las 15 skills cuentan con sección "Bloque Listo para Copiar (Copy-Ready Payload)"', () => {
+  runTest('Todas las 15 skills cuentan con sección "Bloque Listo para Copiar (Copy-Ready Payload)" bien delimitada', () => {
     for (const s of EXPECTED_SKILLS) {
       const fullPath = path.join(ROOT_DIR, s.path);
       const content = fs.readFileSync(fullPath, 'utf-8');
@@ -120,7 +120,32 @@ async function main() {
         content.includes('Bloque Listo para Copiar') || content.includes('Copy-Ready Payload'),
         `Skill ${s.path} debe contener sección Copy-Ready Payload`
       );
-      assert.ok(content.includes('```markdown'), `Skill ${s.path} debe incluir un bloque de código markdown listo para copiar`);
+
+      // Si la skill contiene bloques de código internos (como plantillas Marp, BibTeX o JSON),
+      // el bloque exterior DEBE abrir con 4 backticks (````markdown) para no cerrarse prematuramente.
+      const hasInnerCodeBlocks = ['presentation-architect', 'paper-deconstructor', 'epistemic-auditor'].includes(s.name);
+      if (hasInnerCodeBlocks) {
+        assert.ok(
+          content.includes('````markdown'),
+          `Skill ${s.path} tiene bloques anidados y debe encapsular su payload con 4 backticks (\`\`\`\`markdown)`
+        );
+      } else {
+        assert.ok(
+          content.includes('```markdown'),
+          `Skill ${s.path} debe incluir un bloque de código markdown listo para copiar`
+        );
+      }
+
+      // Validar balance estricto de fences en el archivo completo
+      const lines = content.split('\n');
+      const fences = [];
+      lines.forEach((l, idx) => {
+        const m = l.trim().match(/^(`{3,}|~{3,})/);
+        if (m) fences.push({ line: idx + 1, char: m[1][0], len: m[1].length });
+      });
+
+      // El número total de fences debe ser par y cada apertura debe cerrarse con fence de misma longitud
+      assert.strictEqual(fences.length % 2, 0, `Skill ${s.path} tiene fences desbalanceados (total: ${fences.length})`);
     }
   });
 
@@ -189,13 +214,15 @@ async function main() {
         for (const [inKey, inBinding] of Object.entries(node.inputs)) {
           if (typeof inBinding === 'string' && inBinding.includes('.')) {
             const [srcNodeId, srcOutName] = inBinding.split('.');
-            if (nodeOutputsMap.has(srcNodeId)) {
-              const declaredOutputs = nodeOutputsMap.get(srcNodeId);
-              assert.ok(
-                declaredOutputs.includes(srcOutName),
-                `El nodo ${node.id} intenta consumir ${inBinding}, pero ${srcNodeId} solo emite [${declaredOutputs.join(', ')}]`
-              );
-            }
+            assert.ok(
+              nodeOutputsMap.has(srcNodeId),
+              `El nodo ${node.id} intenta consumir del nodo inexistente: ${srcNodeId}`
+            );
+            const declaredOutputs = nodeOutputsMap.get(srcNodeId);
+            assert.ok(
+              declaredOutputs.includes(srcOutName),
+              `El nodo ${node.id} intenta consumir ${inBinding}, pero ${srcNodeId} solo emite [${declaredOutputs.join(', ')}]`
+            );
           }
         }
       }
@@ -251,6 +278,17 @@ async function main() {
     const b2 = generateBibtex(cyrillicPaper);
     assert.ok(!b2.includes('@article{_'), 'La clave nunca debe comenzar con _');
     assert.ok(b2.includes('autor_2026_paper'), 'Debe aplicar fallback seguro autor_2026_paper');
+  });
+
+  runTest('cleanAsciiSlug y cleanAuthorLastname manejan casos de borde (vacío, puntuación, CJK)', () => {
+    assert.strictEqual(cleanAsciiSlug(''), 'paper', 'Slug vacío debe usar fallback');
+    assert.strictEqual(cleanAsciiSlug('??? !!! @#$%'), 'paper', 'Slug de solo símbolos debe usar fallback');
+    assert.strictEqual(cleanAsciiSlug('日本語テスト'), 'paper', 'Slug de caracteres no latinos debe usar fallback');
+    assert.strictEqual(cleanAsciiSlug('A Deep Neural Architecture'), 'deep', 'Slug normal debe extraer primera palabra > 2 chars');
+
+    assert.strictEqual(cleanAuthorLastname(''), 'autor', 'Autor vacío debe usar fallback');
+    assert.strictEqual(cleanAuthorLastname('Plato'), 'plato', 'Nombre único debe extraerse en minúsculas');
+    assert.strictEqual(cleanAuthorLastname('José-María O\'Connor'), 'oconnor', 'Apellido compuesto debe limpiarse de puntuación');
   });
 
   await runAsyncTest('fetchArxiv emite claves conformes al contrato DAG (papers_markdown, raw_json, bibtex)', async () => {

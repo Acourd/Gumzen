@@ -32,11 +32,10 @@ Al auditar repositorios de la comunidad relacionados con Gumloop, Dify, Coze y k
 ## 2. Propuestas de Nombres para el Repositorio
 
 | Nombre Propuesto | Enfoque | Público Objetivo |
-| :--- | :--- | :--- |
-| **`gumloop-academic-skills`** | Estándar / Limpio | Investigadores y estudiantes que usan Gumloop |
+| **`gumzen-agent-suite`** | Rigor Epistémico & Ecosistema | Suite completa de 15 habilidades agénticas |
 | **`scholar-agent-gumloop`** | Funcional / Modular | Automatización de papers y presentaciones |
 | **`gumloop-deck-architect`** | Específico para Diapositivas | Conversión de investigación a Marp / Slides |
-| **`oyza-gumloop-framework`** | Rigor Epistémico (Oyza C1–C16) | Creación académica con rigor anti-falsos verdes |
+| **`oyza-gumloop-framework`** | Rigor Epistémico (Oyza Core) | Creación académica con rigor anti-falsos verdes |
 | **`gumloop-research-pipeline`** | Orientado a Flujos DAG | Flujos de bajo costo por créditos |
 
 ---
@@ -48,12 +47,12 @@ Mantener la estructura estandarizada de agentes para que cualquier usuario pueda
 ```text
 Gumloop/
 ├── core/
-│   └── OYZA_INTERACTION_PROTOCOL.md   <- Contrato C1-C16 de interacción
+│   └── OYZA_INTERACTION_PROTOCOL.md   <- Contrato portable de interacción y certeza Oyza Core
 ├── skills/
-│   ├── academic-literature-grounding/ <- Búsqueda y verificación de fuentes
-│   ├── presentation-deck-architect/   <- Formateo Marp / Diapositivas
-│   └── fact-audit-and-certainty/      <- Compilador de certeza anti-alucinación
+│   ├── programming/                   <- scout, idea-maximizer, intent-contract, code-audit, causal-debug
+│   ├── communication/                 <- humanizer, presentation-architect, visual-explainer, narrative-distiller, pedagogic-editor
+│   └── research/                      <- web-research-filter, paper-deconstructor, concept-synthesizer, socratic-tutor, epistemic-auditor
 ├── workflows/                         <- Plantillas y JSONs para importar en Gumloop
-│   └── custom_nodes/                  <- Scripts Python auxiliares para nodos sin coste LLM
+│   └── custom_nodes/                  <- Scripts auxiliares para nodos sin coste LLM (Python/Node)
 └── docs/                              <- Guías de optimización de créditos y arquitectura
 ```

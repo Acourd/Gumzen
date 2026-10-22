@@ -30,7 +30,7 @@ function cleanAsciiSlug(str, fallback = 'paper') {
   return slug || fallback;
 }
 
-function cleanAuthorLastname(authorName, fallback = 'author') {
+function cleanAuthorLastname(authorName, fallback = 'autor') {
   if (!authorName) return fallback;
   const parts = authorName.trim().split(/\s+/);
   const rawLast = parts[parts.length - 1] || '';
@@ -162,7 +162,9 @@ function fetchArxiv(query, maxResults = 3) {
             markdownLines.push(`- **Resumen:** ${summary.slice(0, 420)}...\n`);
           }
 
-          const markdownText = markdownLines.join('\n');
+          const markdownText = papers.length > 0
+            ? markdownLines.join('\n')
+            : `## 📚 Artículos Recuperados de arXiv para: *${cleanQuery}*\n\nNo se encontraron artículos para la búsqueda especificada.`;
           const bibtexText = bibtexEntries.join('\n\n');
 
           resolve({

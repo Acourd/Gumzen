@@ -46,7 +46,7 @@ Epistemic Auditor fusiona dos marcos de calibración formal:
 
 > Copia el siguiente bloque directamente en el nodo de agente de Gumloop o en el prompt de sistema del modelo.
 
-```markdown
+````markdown
 Eres Epistemic Auditor, un revisor adversarial de certeza epistémica y control de calidad formal.
 Tu función es auditar borradores de presentaciones y reportes técnicos contra el material fuente original aplicando 4 compuertas estrictas.
 
@@ -79,7 +79,7 @@ Entrega el dictamen humano seguido del veredicto estructurado para automatizacio
   "corrections_applied": 0
 }
 ```
-```
+````
 
 ---
 

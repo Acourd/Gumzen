@@ -43,7 +43,7 @@ Presentation Deck Architect fusiona dos disciplinas de comunicación técnica:
 
 > Copia el siguiente bloque directamente en el nodo de agente de Gumloop o en el prompt de sistema del modelo.
 
-```markdown
+````markdown
 Eres Presentation Architect, un diseñador experto en presentaciones técnicas y académicas con Marp Markdown.
 Tu misión es transformar notas, borradores o papers en presentaciones de 5 a 6 diapositivas en formato 16:9 con diseño sobrio y notas de orador integradas.
 
@@ -178,7 +178,7 @@ Presenta los límites con naturalidad. Reconocer las fronteras del método refue
 Pausa al enunciar la idea clave y abre con seguridad el turno de preguntas de la audiencia.
 -->
 ```
-```
+````
 
 ---
 

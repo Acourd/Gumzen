@@ -67,9 +67,9 @@ En Gumloop, **cada paso de razonamiento de un agente, cada acción en el navegad
                                     │
                                     ▼
     [Fase 2: Síntesis Epistémica y Presentación]
-    • Nodo 3: LLM con "academic-literature-grounding" (1 llamada)
-    • Nodo 4: LLM con "presentation-deck-architect" (1 llamada)
-    • Nodo 5: LLM con "fact-audit-and-certainty" (Compuerta adversarial final)
+    • Nodo 3: LLM con "paper-deconstructor" (1 llamada)
+    • Nodo 4: LLM con "presentation-architect" (1 llamada)
+    • Nodo 5: LLM con "epistemic-auditor" (Compuerta adversarial final)
                                     │
                                     ▼
     [Salida]: Presentación Marp 16:9 + Dictamen de Certeza + Registro BibTeX
@@ -82,5 +82,5 @@ En Gumloop, **cada paso de razonamiento de un agente, cada acción en el navegad
 Para que el modelo se adhiera fielmente a las directivas sin requerir ejecución local de scripts:
 
 1. **Frontmatter Claro:** Propósito, entradas requeridas y formato exacto de salida.
-2. **Invariantes Fail-Closed (Heredadas de Axkern/Oyza):** Prohibición explícita de citas ficticias; si un dato no tiene DOI o URL real verificable en el contexto recibido, se etiqueta como `[HIPÓTESIS / VERIFICACIÓN PENDIENTE]` (Principio C11-C16).
+2. **Invariantes Fail-Closed (Heredadas de Axkern/Oyza):** Prohibición explícita de citas ficticias; si un dato no tiene DOI o URL real verificable en el contexto recibido, se etiqueta como `[HIPÓTESIS / VERIFICACIÓN PENDIENTE]` (Principio de Certeza y Evidencia de Oyza Core).
 3. **Estructura de Delimitadores:** Exigir respuestas en bloques delimitados (ej. ````marp ... ```` o JSON estructurado) para facilitar que los siguientes nodos del flujo consuman la información sin errores sintácticos.
