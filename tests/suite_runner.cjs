@@ -1,7 +1,7 @@
 /**
- * Test Suite Determinista para Gumloop Academic Agent Suite.
- * Verifica integridad de archivos, esquemas de skills, plantillas Marp,
- * validación del contrato DAG de Gumloop y funcionamiento del extractor de arXiv.
+ * Test Suite Determinista para Gumzen Epistemic Agent Suite.
+ * Verifica integridad de archivos, las 15 skills por categoría, contratos Copy-Ready,
+ * protocolo Oyza Core, plantillas Marp, validación DAG y módulo arXiv.
  * 
  * Ejecución: node tests/suite_runner.cjs
  */
@@ -38,11 +38,11 @@ async function runAsyncTest(name, fn) {
 
 async function main() {
   console.log('====================================================');
-  console.log('  Gumloop Academic Suite - Deterministic Test Runner');
+  console.log('  Gumzen Epistemic Suite - Deterministic Test Runner');
   console.log('====================================================\n');
 
-  // 1. Verificación de Licencia y Atribución
-  console.log('--- 1. Licencia, Atribución y Sanitización ---');
+  // 1. Verificación de Licencia, Atribución y Oyza Core
+  console.log('--- 1. Licencia, Atribución y Protocolo Oyza Core ---');
 
   runTest('LICENSE existe y contiene texto de licencia MIT', () => {
     const licensePath = path.join(ROOT_DIR, 'LICENSE');
@@ -52,7 +52,7 @@ async function main() {
     assert.ok(content.includes('2026'), 'Debe incluir copyright 2026');
   });
 
-  runTest('ATTRIBUTION.md existe y reconoce fuentes de inspiración', () => {
+  runTest('ATTRIBUTION.md existe y reconoce fuentes de inspiración y Oyza', () => {
     const attrPath = path.join(ROOT_DIR, 'ATTRIBUTION.md');
     assert.ok(fs.existsSync(attrPath), 'ATTRIBUTION.md debe existir');
     const content = fs.readFileSync(attrPath, 'utf-8');
@@ -63,32 +63,81 @@ async function main() {
     assert.ok(content.includes('Oyza'), 'Debe citar a Oyza');
   });
 
-  runTest('Skills no contienen firmas personales ni enlaces de autopromoción invasivos', () => {
-    const presentationSkill = fs.readFileSync(
-      path.join(ROOT_DIR, 'skills/presentation-deck-architect/SKILL.md'),
-      'utf-8'
-    );
-    assert.ok(!presentationSkill.includes('github.com/Acourd'), 'No debe contener enlace personal promocional');
-    assert.ok(!presentationSkill.includes('**Ponente / Investigador:** Acourd'), 'No debe contener ponente personal hardcodeado');
+  runTest('core/OYZA_INTERACTION_PROTOCOL.md contiene las 6 secciones canónicas del contrato portable', () => {
+    const oyzaPath = path.join(ROOT_DIR, 'core/OYZA_INTERACTION_PROTOCOL.md');
+    assert.ok(fs.existsSync(oyzaPath), 'OYZA_INTERACTION_PROTOCOL.md debe existir');
+    const content = fs.readFileSync(oyzaPath, 'utf-8');
+    assert.ok(content.includes('Identidad y Ergonomía') || content.includes('Identidad y ergonomía'), 'Debe incluir sección 1');
+    assert.ok(content.includes('Custodia del Objetivo') || content.includes('Custodia del objetivo'), 'Debe incluir sección 2');
+    assert.ok(content.includes('Certeza y Evidencia') || content.includes('Certeza y evidencia'), 'Debe incluir sección 3');
+    assert.ok(content.includes('Autoridad y Delegación') || content.includes('Autoridad y delegación'), 'Debe incluir sección 4');
+    assert.ok(content.includes('Recursos y Cierre') || content.includes('Recursos y cierre'), 'Debe incluir sección 5');
+    assert.ok(content.includes('Activación y Retirada') || content.includes('Activación y retirada'), 'Debe incluir sección 6');
   });
 
-  // 2. Verificación de Skills Académicas
-  console.log('\n--- 2. Esquemas de Skills y Formato Copiable ---');
+  // 2. Verificación del Catálogo Completo de 15 Skills
+  console.log('\n--- 2. Catálogo de 15 Skills (3 Familias) & Formato Copiable ---');
 
-  runTest('presentation-deck-architect contiene directivas Marp 16:9 y Speaker Notes', () => {
+  const EXPECTED_SKILLS = [
+    // Programming
+    { path: 'skills/programming/scout/SKILL.md', name: 'scout', cat: 'programming' },
+    { path: 'skills/programming/idea-maximizer/SKILL.md', name: 'idea-maximizer', cat: 'programming' },
+    { path: 'skills/programming/intent-contract/SKILL.md', name: 'intent-contract', cat: 'programming' },
+    { path: 'skills/programming/code-audit/SKILL.md', name: 'code-audit', cat: 'programming' },
+    { path: 'skills/programming/causal-debug/SKILL.md', name: 'causal-debug', cat: 'programming' },
+    // Communication
+    { path: 'skills/communication/humanizer/SKILL.md', name: 'humanizer', cat: 'communication' },
+    { path: 'skills/communication/presentation-architect/SKILL.md', name: 'presentation-architect', cat: 'communication' },
+    { path: 'skills/communication/visual-explainer/SKILL.md', name: 'visual-explainer', cat: 'communication' },
+    { path: 'skills/communication/narrative-distiller/SKILL.md', name: 'narrative-distiller', cat: 'communication' },
+    { path: 'skills/communication/pedagogic-editor/SKILL.md', name: 'pedagogic-editor', cat: 'communication' },
+    // Research
+    { path: 'skills/research/web-research-filter/SKILL.md', name: 'web-research-filter', cat: 'research' },
+    { path: 'skills/research/paper-deconstructor/SKILL.md', name: 'paper-deconstructor', cat: 'research' },
+    { path: 'skills/research/concept-synthesizer/SKILL.md', name: 'concept-synthesizer', cat: 'research' },
+    { path: 'skills/research/socratic-tutor/SKILL.md', name: 'socratic-tutor', cat: 'research' },
+    { path: 'skills/research/epistemic-auditor/SKILL.md', name: 'epistemic-auditor', cat: 'research' }
+  ];
+
+  runTest('Existen exactamente las 15 skills en sus directorios canónicos con frontmatter válido', () => {
+    for (const s of EXPECTED_SKILLS) {
+      const fullPath = path.join(ROOT_DIR, s.path);
+      assert.ok(fs.existsSync(fullPath), `Skill ${s.path} debe existir`);
+      const content = fs.readFileSync(fullPath, 'utf-8');
+      assert.ok(content.startsWith('---'), `${s.path} debe tener frontmatter YAML`);
+      assert.ok(content.includes(`name: ${s.name}`), `${s.path} debe declarar name: ${s.name}`);
+      assert.ok(content.includes(`category: ${s.cat}`), `${s.path} debe declarar category: ${s.cat}`);
+      assert.ok(!content.includes('github.com/Acourd'), `${s.path} no debe contener enlace promocional`);
+      assert.ok(!content.includes('**Ponente / Investigador:** Acourd'), `${s.path} no debe contener autor personal`);
+    }
+  });
+
+  runTest('Todas las 15 skills cuentan con sección "Bloque Listo para Copiar (Copy-Ready Payload)"', () => {
+    for (const s of EXPECTED_SKILLS) {
+      const fullPath = path.join(ROOT_DIR, s.path);
+      const content = fs.readFileSync(fullPath, 'utf-8');
+      assert.ok(
+        content.includes('Bloque Listo para Copiar') || content.includes('Copy-Ready Payload'),
+        `Skill ${s.path} debe contener sección Copy-Ready Payload`
+      );
+      assert.ok(content.includes('```markdown'), `Skill ${s.path} debe incluir un bloque de código markdown listo para copiar`);
+    }
+  });
+
+  runTest('presentation-architect contiene directivas Marp 16:9, Speaker Notes y KaTeX', () => {
     const content = fs.readFileSync(
-      path.join(ROOT_DIR, 'skills/presentation-deck-architect/SKILL.md'),
+      path.join(ROOT_DIR, 'skills/communication/presentation-architect/SKILL.md'),
       'utf-8'
     );
     assert.ok(content.includes('size: 16:9'), 'Debe incluir tamaño panorámico 16:9');
     assert.ok(content.includes('<!-- Speaker Notes:'), 'Debe incluir notas de orador');
-    assert.ok(content.includes('Bloque Listo para Copiar'), 'Debe incluir sección de copiado limpio');
     assert.ok(content.includes('KaTeX'), 'Debe documentar soporte matemático KaTeX');
+    assert.ok(content.includes('18'), 'Debe documentar el presupuesto de 18 líneas');
   });
 
-  runTest('academic-literature-grounding contiene matriz epistémica y BibTeX', () => {
+  runTest('paper-deconstructor contiene Matriz de Certeza Epistémica y BibTeX', () => {
     const content = fs.readFileSync(
-      path.join(ROOT_DIR, 'skills/academic-literature-grounding/SKILL.md'),
+      path.join(ROOT_DIR, 'skills/research/paper-deconstructor/SKILL.md'),
       'utf-8'
     );
     assert.ok(content.includes('Matriz de Certeza Epistémica'), 'Debe contener matriz de certeza');
@@ -98,16 +147,16 @@ async function main() {
     assert.ok(content.includes('Límite Declarado'), 'Debe distinguir límites metodológicos');
   });
 
-  runTest('fact-audit-and-certainty contiene las 4 compuertas y salida dual', () => {
+  runTest('epistemic-auditor contiene las 4 compuertas operacionales y salida JSON', () => {
     const content = fs.readFileSync(
-      path.join(ROOT_DIR, 'skills/fact-audit-and-certainty/SKILL.md'),
+      path.join(ROOT_DIR, 'skills/research/epistemic-auditor/SKILL.md'),
       'utf-8'
     );
     assert.ok(content.includes('PROCEDENCIA'), 'Compuerta 1 presente');
     assert.ok(content.includes('PRECISIÓN NUMÉRICA'), 'Compuerta 2 presente');
     assert.ok(content.includes('LÍMITES CAUSALES'), 'Compuerta 3 presente');
     assert.ok(content.includes('PRESUPUESTO MARP'), 'Compuerta 4 presente');
-    assert.ok(content.includes('18'), 'Presupuesto de líneas de 18 presente');
+    assert.ok(content.includes('18'), 'Presupuesto de 18 líneas presente');
     assert.ok(content.includes('audit_passed'), 'Salida JSON presente');
   });
 
@@ -213,12 +262,20 @@ async function main() {
     assert.ok(typeof result.bibtex === 'string', 'bibtex debe ser string');
   });
 
-  runTest('README.md documenta Gumloop, guía interactiva y enlaza a atribuciones', () => {
+  // 5. Documentación y Oyza en README
+  console.log('\n--- 5. Documentación README & Oyza Core Foundation ---');
+
+  runTest('README.md documenta Gumloop, Oyza Core, las 15 skills y enlaza a atribuciones', () => {
     const readme = fs.readFileSync(path.join(ROOT_DIR, 'README.md'), 'utf-8');
     assert.ok(readme.includes('Gumloop'), 'Debe enfocar la documentación en Gumloop');
+    assert.ok(readme.includes('Oyza Core'), 'Debe presentar Oyza Core como fundamento');
     assert.ok(readme.includes('ATTRIBUTION.md'), 'Debe enlazar a las atribuciones');
     assert.ok(readme.includes('academic_research_pipeline.json'), 'Debe referenciar el pipeline de Gumloop');
-    assert.ok(readme.includes('Copy-Ready'), 'Debe explicar el formato copiable de diapositivas');
+    assert.ok(readme.includes('Copy-Ready'), 'Debe explicar el formato copiable');
+    // Verificar que cataloga las 15 skills
+    for (const s of EXPECTED_SKILLS) {
+      assert.ok(readme.includes(s.name), `README debe catalogar la skill ${s.name}`);
+    }
   });
 
   console.log('\n====================================================');

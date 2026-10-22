@@ -1,5 +1,8 @@
 /**
  * Test de Calidad de Texto, Métricas de Cadencia (Humanize) y Validación Marp.
+ * Audita todos los archivos de documentación y skills para garantizar burstiness rítmica,
+ * ausencia absoluta de clichés de AI y compilación estricta de Marp.
+ * 
  * Ejecución: node tests/test_humanize_and_marp.cjs
  */
 
@@ -48,7 +51,7 @@ function analyzeTextCadence(text) {
     .map(s => s.trim())
     .filter(s => s.length > 5 && !s.startsWith('#') && !s.startsWith('-') && !s.startsWith('|'));
 
-  if (sentences.length < 3) return { cv: 1.0, variance: 10.0, slopFound: [] };
+  if (sentences.length < 3) return { cv: 1.0, variance: 10.0, slopFound: [], mean: 12.0, sentenceCount: sentences.length };
 
   const wordCounts = sentences.map(s => s.split(/\s+/).filter(w => w.length > 0).length);
   const mean = wordCounts.reduce((a, b) => a + b, 0) / wordCounts.length;
@@ -69,23 +72,37 @@ console.log('====================================================\n');
 const filesToAudit = [
   'README.md',
   'ATTRIBUTION.md',
-  'skills/presentation-deck-architect/SKILL.md',
-  'skills/academic-literature-grounding/SKILL.md',
-  'skills/fact-audit-and-certainty/SKILL.md'
+  'core/OYZA_INTERACTION_PROTOCOL.md',
+  'skills/programming/scout/SKILL.md',
+  'skills/programming/idea-maximizer/SKILL.md',
+  'skills/programming/intent-contract/SKILL.md',
+  'skills/programming/code-audit/SKILL.md',
+  'skills/programming/causal-debug/SKILL.md',
+  'skills/communication/humanizer/SKILL.md',
+  'skills/communication/presentation-architect/SKILL.md',
+  'skills/communication/visual-explainer/SKILL.md',
+  'skills/communication/narrative-distiller/SKILL.md',
+  'skills/communication/pedagogic-editor/SKILL.md',
+  'skills/research/web-research-filter/SKILL.md',
+  'skills/research/paper-deconstructor/SKILL.md',
+  'skills/research/concept-synthesizer/SKILL.md',
+  'skills/research/socratic-tutor/SKILL.md',
+  'skills/research/epistemic-auditor/SKILL.md'
 ];
 
 let allPassed = true;
 
 for (const relPath of filesToAudit) {
   const fullPath = path.join(ROOT_DIR, relPath);
+  assert.ok(fs.existsSync(fullPath), `Archivo ${relPath} debe existir`);
   const content = fs.readFileSync(fullPath, 'utf-8');
   const metrics = analyzeTextCadence(content);
 
   console.log(`Auditoría de: ${relPath}`);
   console.log(`  - Oraciones auditadas: ${metrics.sentenceCount}`);
   console.log(`  - Media de palabras: ${metrics.mean.toFixed(2)}`);
-  console.log(`  - Varianza sintáctica (σ²): ${metrics.variance.toFixed(2)} (Mínimo requerido: 6.0)`);
-  console.log(`  - Coeficiente de Burstiness (CV): ${metrics.cv.toFixed(2)} (Mínimo requerido: 0.25)`);
+  console.log(`  - Varianza sintáctica (σ²): ${metrics.variance.toFixed(2)} (Mínimo: 6.0)`);
+  console.log(`  - Coeficiente de Burstiness (CV): ${metrics.cv.toFixed(2)} (Mínimo: 0.25)`);
   
   if (metrics.slopFound.length > 0) {
     console.error(`  [FAIL] Clichés de AI detectados: ${metrics.slopFound.join(', ')}`);
@@ -104,8 +121,8 @@ for (const relPath of filesToAudit) {
 }
 
 // Validación de la sintaxis Marp del bloque copiable
-console.log('--- Validación de Sintaxis Marp ---');
-const marpSkill = fs.readFileSync(path.join(ROOT_DIR, 'skills/presentation-deck-architect/SKILL.md'), 'utf-8');
+console.log('--- Validación de Sintaxis Marp (presentation-architect) ---');
+const marpSkill = fs.readFileSync(path.join(ROOT_DIR, 'skills/communication/presentation-architect/SKILL.md'), 'utf-8');
 const marpMatch = marpSkill.match(/```markdown\n(---[\s\S]*?```)/);
 
 assert.ok(marpMatch, 'Debe encontrarse el bloque Marp en el SKILL.md');

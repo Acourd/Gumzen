@@ -1,6 +1,6 @@
 {
   "name": "Academic Research & Marp Presentation Pipeline",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "Pipeline estructurado para investigación científica, extracción de evidencia empírica y compilación de presentaciones Marp en Gumloop mediante etapas desacopladas.",
   "architecture_pattern": "Bounded Two-Pass Execution (Deterministic DAG)",
   "author": "Acourd & Open Source Contributors",
@@ -42,7 +42,7 @@
       "type": "llm_agent",
       "title": "Grounding & Evidence Extraction Agent",
       "description": "Separa datos medidos de inferencias del autor y detecta limitaciones metodológicas.",
-      "skill_ref": "skills/academic-literature-grounding/SKILL.md",
+      "skill_ref": "skills/research/paper-deconstructor/SKILL.md",
       "inputs": {
         "context": "node_2_python_fetcher.papers_markdown",
         "objective": "Construir la Matriz de Certeza Empírica y sintetizar los puntos clave para la presentación"
@@ -54,7 +54,7 @@
       "type": "llm_agent",
       "title": "Presentation Deck Architect (Marp 16:9)",
       "description": "Compila exactamente 5 a 6 diapositivas panorámicas con diseño sobrio y notas de orador integradas.",
-      "skill_ref": "skills/presentation-deck-architect/SKILL.md",
+      "skill_ref": "skills/communication/presentation-architect/SKILL.md",
       "inputs": {
         "context": "node_3_agent_grounding.structured_summary",
         "objective": "Generar bloque de copiado rápido en formato Marp Markdown (16:9) con notas de orador"
@@ -64,9 +64,9 @@
     {
       "id": "node_5_audit_gate",
       "type": "llm_agent",
-      "title": "Epistemic Fact Audit (Oyza C11-C16)",
+      "title": "Epistemic Fact Audit (Oyza Core Certainty)",
       "description": "Comprueba procedencia, precisión numérica, límites causales y presupuesto de líneas en Marp antes de la entrega.",
-      "skill_ref": "skills/fact-audit-and-certainty/SKILL.md",
+      "skill_ref": "skills/research/epistemic-auditor/SKILL.md",
       "inputs": {
         "source_data": "node_3_agent_grounding.structured_summary",
         "generated_slides": "node_4_agent_marp.marp_slides_markdown"

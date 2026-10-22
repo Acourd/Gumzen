@@ -16,10 +16,10 @@ Para garantizar total transparencia sobre el origen del código y las ideas, det
 * **ngtiendong** — Por sus flujos de trabajo sobre desconstrucción de artículos científicos y metodologías de investigación asistida por modelos de lenguaje.
 
 ### C. Gobernanza Epistémica y Arquitectura Determinista
-* **Axkern Sovereign Suite & Protocolo Oyza (C1–C16)** — Por el marco de calibración epistémica:
+* **Axkern Sovereign Suite & Protocolo Oyza Core** — Por el marco de calibración epistémica y certeza portable:
   - Distinción rigurosa entre **observación directa** (datos medidos) e **inferencia** (conclusiones del autor).
   - Tolerancia cero a citas inventadas o identificadores DOI alucinados.
-  - Presupuesto estricto de recursos y créditos con contención de bucles infinitos.
+  - Presupuesto estricto de recursos con contención de bucles abiertos.
 
 ---
 
@@ -27,16 +27,16 @@ Para garantizar total transparencia sobre el origen del código y las ideas, det
 
 A partir de los cimientos anteriores, este proyecto introduce innovaciones técnicas concretas para el ecosistema Gumloop y la comunidad abierta:
 
-1. **Pipeline en 2 Fases con Costo Acotado (3 a 5 Créditos):**
-   Sustituye los bucles agénticos abiertos (que suelen consumir de 40 a 100 créditos por corrida iterando sin rumbo) por un flujo DAG predecible en dos etapas.
-2. **Nodos de Extracción sin Consumo de LLM (`arxiv_semantic_fetcher`):**
+1. **Catálogo de 15 Habilidades de Alta Densidad (Copy-Ready):**
+   Estructura 15 skills divididas en 3 familias (Programación, Comunicación y Comunicación Visual, e Investigación Epistémica) con bloques directamente copiables a nodos de agente.
+2. **Pipeline en 2 Fases con Costo Predecible:**
+   Sustituye los bucles agénticos abiertos por un flujo DAG predecible en dos etapas.
+3. **Nodos de Extracción sin Consumo de LLM (`arxiv_semantic_fetcher`):**
    Scripts en Python y Node.js que consultan la API pública de arXiv, extraen metadatos verificados, generan citas BibTeX estándar con soporte para caracteres no latinos y preparan el corpus para los agentes con **cero costo de tokens**.
-3. **Compuerta de Auditoría Epistémica Operacional (`fact-audit-and-certainty`):**
+4. **Compuerta de Auditoría Epistémica Operacional (`epistemic-auditor`):**
    Un auditor adversarial que verifica cuatro dimensiones críticas antes de emitir una presentación: procedencia de datos, precisión numérica, límites causales y presupuesto tipográfico para evitar desbordamientos en pantalla (máximo 18 líneas por lámina 16:9).
-4. **Formato "Copy-Ready Payload" (Copiado Rápido Limpio):**
-   Plantillas modulares libres de enlaces promocionales o firmas personales invasivas, diseñadas para que cualquier usuario copie el resultado esencial en un solo clic y lo use directamente en sus conferencias o clases.
-5. **Matriz Comparativa Multi-Paper:**
-   Capacidad de sintetizar y contrastar simultáneamente 2 o 3 investigaciones respecto a una misma pregunta científica.
+5. **Formato "Copy-Ready Payload" (Copiado Rápido Limpio):**
+   Plantillas modulares libres de enlaces promocionales o firmas personales invasivas, diseñadas para que cualquier usuario copie el resultado esencial en un solo clic y lo use directamente en sus conferencias o flujos de trabajo.
 
 ---
 
